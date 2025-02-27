@@ -80,16 +80,23 @@ class CartController extends Controller
                 'quantity' => 'required|integer|min:1',
             ]);
     
-            // Buscar o crear el carrito del cliente
-            $cart = Cart::firstOrCreate(
-                ['client_id' => $client_id],
-                ['total' => 0]
-            );
+            // Buscar el carrito activo del cliente (sin estado "completed") o crear uno nuevo
+            $cart = Cart::where('client_id', $client_id)
+                        ->where('status', '!=', 'completed')
+                        ->first();
+            
+            if (!$cart) {
+                $cart = Cart::create([
+                    'client_id' => $client_id,
+                    'total' => 0,
+                    'status' => 'pending'
+                ]);
+            }
     
-            // Buscar si el producto ya está en el carrito y no ha sido comprado
+            // Buscar si el producto ya está en el carrito
             $productCart = ProductsCart::where('cart_id', $cart->id)
                 ->where('product_id', $request->id)
-                ->where('state', 'waiting') // Filtrar solo los productos no comprados
+                ->where('state', 'waiting')
                 ->first();
     
             if ($productCart) {
@@ -104,7 +111,7 @@ class CartController extends Controller
                     'product_id' => $request->id,
                     'quantity' => $request->quantity,
                     'subtotal' => $request->price * $request->quantity,
-                    'state' => 'waiting' // Asegurar que solo se añadan productos en estado 'waiting'
+                    'state' => 'waiting'
                 ]);
             }
     
@@ -117,18 +124,10 @@ class CartController extends Controller
             $cart->total = $total;
             $cart->save();
     
-            // Obtener solo los productos no comprados ('waiting') para la respuesta
-            $products = ProductsCart::where('cart_id', $cart->id)
-                ->where('state', 'waiting')
-                ->get();
-    
             return response()->json([
                 'status' => 'success',
-                'cart' => $cart,
-                'products' => $products // Solo se devuelven productos "waiting"
+                'cart' => $cart
             ], 200);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json(['error' => $e->validator->errors()], 422);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Hubo un problema al añadir el producto: ' . $e->getMessage()], 500);
         }

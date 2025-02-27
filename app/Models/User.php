@@ -25,8 +25,11 @@ class User extends Model implements AuthenticatableContract
         'google_id'
     ];
 
-    public function directions()
+    public function direction()
     {
         return $this->hasMany(Direction::class, 'direction_id', '_id'); 
+    }
+    public function carts(){
+        return $this->hasOne(Cart::class, 'Cart_id', '_id' );
     }
 }

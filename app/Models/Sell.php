@@ -17,7 +17,7 @@ class Sell extends Model
     protected $fillable = [
         'cart_id', 'client_id', 'direction_id', 'total', 'iva', 'purchase_method'
     ]; 
-    public function cart()
+    public function carts()
         {
             return $this->belongsTo(Cart::class, 'cart_id', '_id');
         }
