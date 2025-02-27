@@ -24,35 +24,44 @@ class ProductController extends Controller
     {
         $request->validate([
             'category_id' => 'required',
-            'name' => 'required|string|max:50'
-            // 'brand_id' => 'required|',
-            // 'sell_price' => 'required|double',
-            // 'buy_price' => 'required|double',
-            // 'bar_code' => 'required',
-            // 'stock' => 'required|number',
-            // 'description' => 'required|string|max:200',
-            // 'state' => 'required',
-            // 'wholesare_price' => 'required|double',
-            // 'image' =>  'required|array'
+            'name' => 'required',
+            'brand_id' => 'required',
+            'sell_price' => 'required',
+            'buy_price' => 'required',
+            'bar_code' => 'required',
+            'stock' => 'required',
+            'description' => 'required',
+            'state' => 'required',
+            'wholesare_price' => 'required',
+          //  'image' => 'required'
         ]);
+    
         $products = new Product();
         $products->category_id = $request->category_id;
         $products->name = $request->name;
-        // $products->brand_id = $request->brand_id;
-        // $products->sell_price = $request->sell_price;
-        // $products->bar_code = $request->bar_code;
-        // $products->stock = $request->stock;
-        // $products->description = $request->description;
-        // $products->state = $request->state;
-        // $products->wholesare_price = $request->wholesare_price;
-        // $products->image = $request->image;
+        $products->brand_id = $request->brand_id;
+        $products->sell_price = $request->sell_price;
+        $products->buy_price = $request->buy_price; // Se agregó
+        $products->bar_code = $request->bar_code;
+        $products->stock = $request->stock;
+        $products->description = $request->description;
+        $products->state = $request->state;
+        $products->wholesare_price = $request->wholesare_price;
+    
+        // Guardar la imagen si se sube
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('images', 'public');
+            $products->image = $imagePath;
+        }
+    
         $products->save();
+    
         return response()->json([
-            'message' => 'producto insertado correctamente',
+            'message' => 'Producto insertado correctamente',
             'data' => $products
         ], 201);
     }
-
+    
     /**
      * Display the specified resource.
      */

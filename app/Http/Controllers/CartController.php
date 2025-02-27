@@ -70,14 +70,12 @@ class CartController extends Controller
 
     public function add(Request $request)
     {
+        $i=1;
         $client_id = $request->input('client_id');
-    
         try {
             // Validar los datos del formulario
             $request->validate([
                 'id' => 'required|string', // MongoDB usa strings para los IDs
-                'price' => 'required|numeric|min:0',
-                'quantity' => 'required|integer|min:1',
             ]);
     
             // Buscar el carrito activo del cliente (sin estado "completed") o crear uno nuevo
@@ -98,12 +96,13 @@ class CartController extends Controller
                 ->where('product_id', $request->id)
                 ->where('state', 'waiting')
                 ->first();
-    
+            $product = Product::find($request->id);
+            $price = $product->sell_price;
             if ($productCart) {
                 // Si ya existe, actualizar la cantidad y el subtotal
-                $productCart->quantity += $request->quantity;
-                $productCart->unit_price += $request->price;
-                $productCart->subtotal += $request->price * $request->quantity;
+                $productCart->quantity += $i;
+                $productCart->unit_price = $price;
+                $productCart->subtotal += $price * $i;
                 $productCart->save();
             } else {
                 // Si no existe, crear un nuevo registro en `products_cart`
@@ -115,6 +114,7 @@ class CartController extends Controller
                     'state' => 'waiting'
                 ]);
             }
+
     
             // Calcular el nuevo total sumando solo los productos "waiting"
             $total = ProductsCart::where('cart_id', $cart->id)
@@ -141,45 +141,68 @@ class CartController extends Controller
     public function quitItem(Request $request, $id)
     {
         $client_id = $request->input('client_id');
+    
         try {
-            // Eliminar el ítem del carrito de la biblioteca Cart
-
-
-            // Eliminar el registro correspondiente en `products_cart`
-            ProductsCart::where('cart_id', Cart::where('client_id', $client_id)->value('id'))
-                        ->where('product_id', $id)->where('state', 'waiting')
-                        ->delete();
-                        $total=ProductsCart::where('cart_id', Cart::where('client_id', $client_id)->value('id'))->where('state', 'waiting')
-                        ->sum('subtotal');
-
-
-            // Actualizar el total del carrito
-            $cart = Cart::where('client_id', $client_id)->first();
-            if ($cart) {
-                $cart->total = $total;
-                $cart->save();
+            // Buscar el carrito del cliente
+            $cart = Cart::where('client_id', $client_id)->where('status', '!=', 'completed')->first();
+    
+            if (!$cart) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'No se encontró un carrito activo para el cliente.'
+                ], 404);
             }
-
+    
+            // Eliminar el producto del carrito
+            $deleted = ProductsCart::where('cart_id', $cart->id)
+                ->where('product_id', $id)
+                ->where('state', 'waiting')
+                ->delete();
+    
+            // Si no se eliminó ningún producto, retornar error
+            if ($deleted === 0) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'El producto no estaba en el carrito o ya fue procesado.'
+                ], 404);
+            }
+    
+            // Recalcular el total del carrito
+            $total = ProductsCart::where('cart_id', $cart->id)
+                ->where('state', 'waiting')
+                ->sum('subtotal');
+    
+            $cart->total = $total;
+            $cart->save();
+    
             return response()->json([
                 'status' => 'success',
-                'message' => 'Sell deleted successfully'
+                'message' => 'Producto eliminado correctamente.'
             ], 200);
+    
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Hubo un problema al eliminar el producto: ' . $e->getMessage()]);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Hubo un problema al eliminar el producto: ' . $e->getMessage()
+            ], 500);
         }
     }
+    
+    
 
     public function more(Request $request, $id)
     {
+        
         $client_id = $request->input('client_id');
-        // Obtener el ID del cliente autenticado
+   // Obtener el ID del cliente autenticado
+   
         // $clientId = auth()->id();
         // if (!$clientId) {
         //     return response()->json(['status' => 'error', 'message' => 'Usuario no autenticado.'], 401);
         // }
     
         // Obtener el carrito del cliente
-        $cart = Cart::where('client_id', $client_id)->first();
+        $cart = Cart::where('client_id', $client_id)->where('status', '!=', 'completed')->with('producto_cart')->first();
         if (!$cart) {
             return response()->json(['status' => 'error', 'message' => 'Carrito no encontrado para este cliente.'], 404);
         }
@@ -193,7 +216,6 @@ class CartController extends Controller
         // Buscar el producto en el carrito con estado 'waiting'
         $productCart = ProductsCart::where('cart_id', $cart->id)
             ->where('product_id', $id)
-            ->where('state', 'waiting')->with('producto')
             ->first();
     
         if (!$productCart) {
@@ -206,10 +228,10 @@ class CartController extends Controller
         $productCart->save();
     
         // Recalcular el total del carrito sumando todos los subtotales de los productos en el carrito
-        $cart->total = ProductsCart::where('cart_id', $cart->id)->where('state', 'waiting')->sum('subtotal');
+        $cart->total = ProductsCart::where('cart_id', $cart->id)->where('state', 'waiting')->with('producto')->sum('subtotal');
         $cart->save();
     
-        return response()->json(['status' => 'success', 'data' => $cart], 200);
+        return response()->json(['status' => 'success', 'data' => $productCart], 200);
     }
     
     public function less(Request $request, $id)
@@ -223,7 +245,7 @@ class CartController extends Controller
         // }
     
         // Obtener el carrito del cliente
-        $cart = Cart::where('client_id', $client_id)->with('producto')->first();
+        $cart = Cart::where('client_id', $client_id)->where('status', '!=', 'completed')->with('producto_cart')->first();
         if (!$cart) {
             return response()->json(['status' => 'error', 'message' => 'Carrito no encontrado para este cliente.'], 404);
         }
@@ -237,13 +259,18 @@ class CartController extends Controller
         // Buscar el producto en el carrito con estado 'waiting'
         $productCart = ProductsCart::where('cart_id', $cart->id)
             ->where('product_id', $id)
-            ->where('state', 'waiting')->where('quantity', '>', 1)
             ->first();
     
+
         if (!$productCart) {
             return response()->json(['status' => 'error', 'message' => 'Producto no encontrado en el carrito con el estado requerido.'], 404);
         }
-    
+        if ($productCart->quantity <= 1) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'La cantidad mínima permitida es 1.'
+            ], 422); 
+        }
         // Actualizar la cantidad y el subtotal del producto
         $productCart->quantity -= 1;
         $productCart->subtotal = $productCart->quantity * $product->sell_price; // Precio directo de la base de datos
@@ -253,41 +280,53 @@ class CartController extends Controller
         $cart->total = ProductsCart::where('cart_id', $cart->id)->where('state', 'waiting')->with('producto')->sum('subtotal');
         $cart->save();
     
-        return response()->json(['status' => 'success', 'data' =>$cart, $productCart], 200);
+        return response()->json(['status' => 'success', 'data' => $productCart], 200);
     }
     
     public function clear(Request $request)
     {
         $client_id = $request->input('client_id');
+    
         try {
-            // Eliminar el ítem del carrito de la biblioteca Cart
-
-
-            // Eliminar el registro correspondiente en `products_cart`
-            ProductsCart::where('cart_id', Cart::where('client_id', $client_id)->value('id'))->where('state', 'waiting')
-                        ->delete();
-                        $total=ProductsCart::where('cart_id', Cart::where('client_id', $client_id)->value('id'))->where('state', 'waiting')
-                        ->sum('subtotal');
-
-
-            // Actualizar el total del carrito
-            $cart = Cart::where('client_id', $client_id)->first();
-            if ($cart) {
-                $cart->total = 0;
-                $cart->save();
+            // Buscar el carrito del cliente
+            $cart = Cart::where('client_id', $client_id)->where('status', '!=', 'completed')->first();
+    
+            if (!$cart) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'No se encontró un carrito activo para el cliente.'
+                ], 404);
             }
-if(!$cart){
-    return response()->json([
-        'status' => 'success',
-        'message' => 'cart not found'
-    ], 404);
-}
+    
+            // Eliminar el producto del carrito
+            $deleted = ProductsCart::where('cart_id', $cart->id)
+                ->delete();
+    
+            // Si no se eliminó ningún producto, retornar error
+            if ($deleted === 0) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'El producto no estaba en el carrito o ya fue procesado.'
+                ], 404);
+            }
+    
+            // Recalcular el total del carrito
+            $total = ProductsCart::where('cart_id', $cart->id)
+                ->sum('subtotal');
+    
+            $cart->total = $total;
+            $cart->save();
+    
             return response()->json([
                 'status' => 'success',
-                'message' => 'cart deleted successfully'
+                'message' => 'Carrito borrado'
             ], 200);
+    
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Hubo un problema al eliminar el producto: ' . $e->getMessage()]);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Hubo un problema al borrar el carrito: ' . $e->getMessage()
+            ], 500);
         }
     }
 

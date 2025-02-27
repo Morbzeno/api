@@ -78,6 +78,7 @@ Route::prefix('cart')->group(function () {
     Route::delete('/{id}', [CartController::class, 'quitItem']);
     Route::put('/{id}/more', [CartController::class, 'more']);
     Route::put('/{id}/less', [CartController::class, 'less']);
+    Route::delete('/', [CartController::class, 'clear']);
 });
 
 Route::prefix('sells')->group(function () {
