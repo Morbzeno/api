@@ -85,7 +85,6 @@ class SellController extends Controller
          
         $sells = Cart::with([
             'producto_cart.producto.brand',
-            'producto_cart.producto.category'
         ])->where('status', 'completed')->get();
     
         return response()->json([
