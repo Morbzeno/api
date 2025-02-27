@@ -21,7 +21,6 @@ class SellController extends Controller
              //   'direction_id' => 'required|exists:directions,id',
              //   'purchase_method' => 'nullable|string',
             ]);
-    
             // Obtener el carrito activo del cliente
             $cart = Cart::where('client_id', $id)
                         ->where('status', '!=', 'completed')
@@ -99,9 +98,10 @@ class SellController extends Controller
     // Mostrar una venta específica
     public function show($id)
     {
-        $sells = Cart::with(['client', 'sell.direction', 'producto_cart' => function ($query) {
-            $query->where('state', 'sell')->with('producto');
-        }])->where('client_id', $id)->get();
+        $sells = Sell::with([
+            'carts.producto_cart.producto.brand',
+            'carts.producto_cart.producto.category'
+        ])->where('client_id', $id)->get();
 
         if ($sells->isEmpty()) {
             return response()->json([

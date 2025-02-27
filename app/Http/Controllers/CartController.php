@@ -32,7 +32,7 @@ class CartController extends Controller
         }
         $cart = Cart::with(['client', 'producto_cart' => function ($query) {
             $query->where('state', 'waiting')->with('producto');
-        }])->where('client_id', $client_id)->get();
+        }])->where('status', '!=', 'completed')->where('client_id', $client_id)->get();
         
         if ($cart->isEmpty()) {
             return response()->json([
@@ -52,7 +52,7 @@ class CartController extends Controller
     {
         $cart = Cart::with(['client', 'producto_cart' => function ($query) {
             $query->where('state', 'waiting')->with('producto');
-        }])->where('client_id', $id)->get();
+        }])->where('status', '!=', 'completed')->where('client_id', $id)->get();
     
         if ($cart->isEmpty()) {
             return response()->json([
@@ -102,6 +102,7 @@ class CartController extends Controller
             if ($productCart) {
                 // Si ya existe, actualizar la cantidad y el subtotal
                 $productCart->quantity += $request->quantity;
+                $productCart->unit_price += $request->price;
                 $productCart->subtotal += $request->price * $request->quantity;
                 $productCart->save();
             } else {
