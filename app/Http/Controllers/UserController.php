@@ -10,18 +10,19 @@ class UserController extends Controller
 {
     public function index()
     {
-        return response()->json(User::all());
+        return response()->json(User::all());  //Index te devuelve todos los usuarios
     }
 
     public function show($id)
     {
-        $user = User::find($id);
+        $user = User::find($id);  //Show te manda un usuario en especifico en base a su id de mongo
         return $user ? response()->json($user) : response()->json(['error' => 'User no encontrado'], 404);
     }
 
     public function store(Request $request)
     {
-        $request->validate([
+    //estos son los campos que se deben de mandar, algunos pueden ser nulos y no pueden repetirse emails
+        $request->validate([  
             'name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
@@ -38,10 +39,13 @@ class UserController extends Controller
         $user->password = Hash::make($request->password);
 
         if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $nombreImagen = time() . '_' . $image->getClientOriginalName();
-            $ruta = $image->storeAs('users', $nombreImagen, 'public');
-            $user->image = $ruta;
+            $img = $request->file('image');
+            $nuevoNombre = 'user_' . $user->id . '.' . $img->extension();
+            $ruta = $img->storeAs('images/user', $nuevoNombre, 'public');
+            $rutaCompleta = asset('storage/' . $ruta);
+
+            $user->image = $rutaCompleta;
+            $user->update();
         }
 
         $user->save();
@@ -79,10 +83,13 @@ class UserController extends Controller
         }
 
         if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $nombreImagen = time() . '_' . $image->getClientOriginalName();
-            $ruta = $image->storeAs('users', $nombreImagen, 'public');
-            $user->image = $ruta;
+            $img = $request->file('image');
+            $nuevoNombre = 'user_' . $user->id . '.' . $img->extension();
+            $ruta = $img->storeAs('images/user', $nuevoNombre, 'public');
+            $rutaCompleta = asset('storage/' . $ruta);
+
+            $user->image = $rutaCompleta;
+            $user->update();
         }
 
         $user->save();
@@ -94,7 +101,7 @@ class UserController extends Controller
     }
 
     public function destroy($id)
-    {
+    {  
         $user = User::find($id);
 
         if (!$user) {
