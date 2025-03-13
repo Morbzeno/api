@@ -65,7 +65,7 @@ Route::middleware(['auth.client'])->group(function () {
     Route::get('/user/{id}', [UserController::class, 'show']);
     Route::post('/user', [UserController::class, 'store']);
     Route::delete('/user/{id}', [UserController::class, 'destroy']);
-    Route::put('/user/{id}', [UserController::class, 'update']);
+    Route::post('/user/{id}', [UserController::class, 'update']);
 });
 Route::post('/register',[AuthController::class, 'register']);
 Route::post('/login',[AuthController::class, 'login']);

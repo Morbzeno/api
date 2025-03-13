@@ -26,13 +26,13 @@ class ProductController extends Controller
             'category_id' => 'required',
             'name' => 'required',
             'brand_id' => 'required',
-            'sell_price' => 'required',
+            'retail_price' => 'required',
             'buy_price' => 'required',
             'bar_code' => 'required',
             'stock' => 'required',
             'description' => 'required',
             'state' => 'required',
-            'wholesare_price' => 'required',
+            'wholesale_price' => 'required',
           //  'image' => 'required'
         ]);
     
@@ -40,13 +40,13 @@ class ProductController extends Controller
         $products->category_id = $request->category_id;
         $products->name = $request->name;
         $products->brand_id = $request->brand_id;
-        $products->sell_price = $request->sell_price;
+        $products->retail_price = $request->retail_price;
         $products->buy_price = $request->buy_price; // Se agregó
         $products->bar_code = $request->bar_code;
         $products->stock = $request->stock;
         $products->description = $request->description;
         $products->state = $request->state;
-        $products->wholesare_price = $request->wholesare_price;
+        $products->wholesale_price = $request->wholesale_price;
     
         // Guardar la imagen si se sube
         if ($request->hasFile('image')) {
