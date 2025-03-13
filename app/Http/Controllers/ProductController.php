@@ -10,13 +10,32 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::with('category', 'brand')->get();
-        if (!$products){
-            return response()->json(['message' => 'no se encuentran productos'], 400);
+        // $products = Product::with('category:id,name', 'brand:id,name')->get();
+        // if (!$products){
+        //     return response()->json(['message' => 'no se encuentran productos'], 400);
+        // }
+        // return response()->json($products->toArray(), 200);
+        $query = Product::query();
+        if ($request->has('search')){
+            $search = $request->input('search');
+
+            $query->where('name', 'regexp', new \MongoDB\BSON\Regex($search, 'i'));
+
+            $query->orWhereHas('category', function($query) use ($search) {
+                $query->where('name', 'regexp', new \MongoDB\BSON\Regex($search, 'i'));
+            });
+    }
+        // return response()->json(Direction::all());
+        //->pagination(15)
+        $product = $query->with('category:id,name', 'brand:id,name')->get();
+        if ($product->isEmpty()){
+            return response()->json(['message' => 'producto no encontrado'],400);
         }
-        return response()->json($products->toArray(), 200);
+        return response()->json($product);
+    
+        
     }
     
     
@@ -29,7 +48,7 @@ class ProductController extends Controller
             'category_id' => 'required',
             'name' => 'required',
             'brand_id' => 'required',
-            'sell_price' => 'required',
+            'retail_price' => 'required',
             'buy_price' => 'required',
             'bar_code' => '',
             'stock' => 'required',
@@ -45,7 +64,7 @@ class ProductController extends Controller
         $product->category_id = $request->category_id;
         $product->name = $request->name;
         $product->brand_id = $request->brand_id;
-        $product->sell_price = $request->sell_price;
+        $product->retail_price = $request->retail_price;
         $product->buy_price = $request->buy_price;
         $product->bar_code = $request->bar_code;
         $product->stock = $request->stock;
@@ -82,7 +101,7 @@ class ProductController extends Controller
      */
     public function show(string $id)
     {
-        $products = Product::find($id);
+        $products = Product::with('category:id,name', 'brand:id,name')->find($id);
         if (!$products){
             return response()->json(['message' => 'producto no encontrado'], 400);
         }
@@ -102,7 +121,7 @@ class ProductController extends Controller
             'category_id' => '',
             'name' => '',
             'brand_id' => '',
-            'sell_price' => '',
+            'retail_price' => '',
             'buy_price' => '',
             'bar_code' => '',
             'stock' => '',

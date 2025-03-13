@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Direction;
+use App\Models\User;
 
 class DirectionController extends Controller
 {
@@ -22,7 +23,7 @@ class DirectionController extends Controller
     
     }
 
-    public function show($id){
+    public function show(string $id){
         $direction = Direction::with('user')->find($id);
         if(!$direction){
             return response()->json([
@@ -35,7 +36,7 @@ class DirectionController extends Controller
     }
     public function store(Request $request){
         $request->validate([
-            'user_id' => 'required',
+            'user_id' => 'required|exists:users,id',
             'state' => 'required',
             'city' => 'required',
               'postal_code' => 'required',
@@ -43,6 +44,13 @@ class DirectionController extends Controller
         'residence' => 'required',
         'description' => 'required',
         ]);
+
+        $total = Direction::where('user_id', $request->user_id)->count();
+
+        if ($total >=3){
+            return response()->json(['message'=> 'no se pueden meter mas de 3 direcciones'],400);
+        }
+
         $direction = new Direction();
         $direction->user_id = $request->user_id;
         $direction->state = $request->state;
@@ -58,7 +66,7 @@ class DirectionController extends Controller
         ],201);
 
     }
-    public function update(Request $request, $id){
+    public function update(Request $request, string $id){
         $direction = Direction::find($id);
         if(!$direction){
             return response()->json([
@@ -79,7 +87,7 @@ class DirectionController extends Controller
             'datos' => $direction
         ],200);
     }
-    public function destroy($id){
+    public function destroy(string $id){
         $direction = Direction::find($id);
         if(!$direction){
             return response()->json([

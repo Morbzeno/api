@@ -128,7 +128,7 @@ public function store(Request $request, $id)
     public function show($id)
     {
         $sells = Sell::with([
-            'carts.producto_cart.producto.brand',
+            'carts.producto_cart.producto:id.brand:id,name',
             // 'carts.producto_cart.producto.category'
         ])->where('client_id', $id)->get();
 
