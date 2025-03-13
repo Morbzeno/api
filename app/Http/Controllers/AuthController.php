@@ -89,12 +89,19 @@ public function login(Request $request)
 
 
     // Cierre de sesión
-    public function logout()
+    public function logout(Request $request)
     {
-        Auth::user()->tokens()->delete();
+        $user = Auth::user();
+        
+        if (!$user) {
+            return response()->json(['message' => 'No autenticado'], 401);
+        }
+    
+        $user->tokens()->delete(); // Elimina todos los tokens activos
+    
         return response()->json(['message' => 'Cierre de sesión exitoso']);
     }
-
+    
 
     // Redirigir a Google
     public function redirectToGoogle()

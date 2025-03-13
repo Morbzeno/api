@@ -31,12 +31,14 @@ class ProductController extends Controller
             'brand_id' => 'required',
             'sell_price' => 'required',
             'buy_price' => 'required',
-            'bar_code' => 'required',
+            'bar_code' => '',
             'stock' => 'required',
             'description' => 'required',
             'state' => 'required',
-            'wholesare_price' => 'required',
+            'wholesale_price' => 'required',
+            'sku' => '',
             'image.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048' // Validación de imágenes múltiples
+
         ]);
     
         $product = new Product();
@@ -49,7 +51,8 @@ class ProductController extends Controller
         $product->stock = $request->stock;
         $product->description = $request->description;
         $product->state = $request->state;
-        $product->wholesare_price = $request->wholesare_price;
+        $product->sku = $request->sku;
+        $product->wholesale_price = $request->wholesale_price;
         $product->save();
         // Procesar imágenes si se suben
         $imagenes = [];
@@ -105,7 +108,8 @@ class ProductController extends Controller
             'stock' => '',
             'description' => '',
             'state' => '',
-            'wholesare_price' => '',
+            'wholesale_price' => '',
+            'sku'=> '',
             'image.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048' // Validación de imágenes múltiples
         ]);
         $product->update($validation);
