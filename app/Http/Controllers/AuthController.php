@@ -24,8 +24,7 @@ class AuthController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'socialMedia' => 'required|string|max:255',
             'phone' => 'required|integer',
-            'status' => 'required|string|max:255',
-            'address' => 'required|string|max:255'
+            // 'status' => 'required|string|max:255',
              // Validación de image
         ]);
     
@@ -37,15 +36,17 @@ class AuthController extends Controller
         $User->password = Hash::make($request->password);
         $User->socialMedia = $request->socialMedia;
         $User->phone = $request->phone;
-        $User->status = $request->status;
-        $User->address = $request->address;
+        // $User->status = $request->status;
     
         // Verificar si hay una image en la solicitud
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $nombreImagen = time() . '_' . $image->getClientOriginalName();
-            $ruta = $image->storeAs('admins', $nombreImagen, 'public'); // Guardar en storage/app/public/admins
-            $User->image = $ruta; // Guardar la ruta en la base de datos
+        if ($request->hasFile('image')) { 
+            $img = $request->file('image');
+            $nuevoNombre = 'user_' . $User->id . '.' . $img->extension();
+            $ruta = $img->storeAs('images/user', $nuevoNombre, 'public');
+            $rutaCompleta = asset('storage/' . $ruta);
+
+            $User->image = $rutaCompleta;
+            $User->update();
         }
     
         // Guardar en la base de datos
@@ -73,11 +74,7 @@ public function login(Request $request)
     }
 
     // Generar un token único
-    $token = Str::random(60);
-
-    // Guardar el token en el Usere (MongoDB)
-    $User->token = hash('sha256', $token);
-    $User->save();
+    $token = $User->createToken('auth_token')->plainTextToken;
 
     return response()->json([
         'message' => 'Login correcto',
@@ -91,7 +88,7 @@ public function login(Request $request)
     // Cierre de sesión
     public function logout(Request $request)
     {
-        $user = Auth::user();
+        $user = $request::user();
         
         if (!$user) {
             return response()->json(['message' => 'No autenticado'], 401);
