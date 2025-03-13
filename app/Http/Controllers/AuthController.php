@@ -43,7 +43,7 @@ class AuthController extends Controller
         // Verificar si hay una image en la solicitud
         if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $nombreImagen = time() . '_' . $image->getUserOriginalName();
+            $nombreImagen = time() . '_' . $image->getClientOriginalName();
             $ruta = $image->storeAs('admins', $nombreImagen, 'public'); // Guardar en storage/app/public/admins
             $User->image = $ruta; // Guardar la ruta en la base de datos
         }
