@@ -58,7 +58,7 @@ Route::get('/direction', [DirectionController::class, 'index']);
 Route::get('/direction/{id}', [DirectionController::class, 'show']);
 Route::post('/direction', [DirectionController::class, 'store']);
 Route::delete('/direction/{id}', [DirectionController::class, 'destroy']);
-Route::put('/direction/{id}', [DirectionController::class, 'update']);
+Route::post('/direction/{id}', [DirectionController::class, 'update']);
 
 Route::middleware(['auth.client'])->group(function () {
     Route::get('/user', [UserController::class, 'index']);
@@ -69,6 +69,7 @@ Route::middleware(['auth.client'])->group(function () {
 });
 Route::post('/register',[AuthController::class, 'register']);
 Route::post('/login',[AuthController::class, 'login']);
+Route::post('/logout',[AuthController::class, 'logout'])->middleware('auth.client');;
 
 
 Route::prefix('cart')->group(function () {
