@@ -13,6 +13,9 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::with('category', 'brand')->get();
+        if (!$products){
+            return response()->json(['message' => 'no se encuentran productos'], 400);
+        }
         return response()->json($products->toArray(), 200);
     }
     
@@ -28,39 +31,51 @@ class ProductController extends Controller
             'brand_id' => 'required',
             'retail_price' => 'required',
             'buy_price' => 'required',
-            'bar_code' => 'required',
+            'bar_code' => '',
             'stock' => 'required',
             'description' => 'required',
             'state' => 'required',
             'wholesale_price' => 'required',
-          //  'image' => 'required'
+            'sku' => '',
+            'image.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048' // Validación de imágenes múltiples
+
         ]);
     
-        $products = new Product();
-        $products->category_id = $request->category_id;
-        $products->name = $request->name;
-        $products->brand_id = $request->brand_id;
-        $products->retail_price = $request->retail_price;
-        $products->buy_price = $request->buy_price; // Se agregó
-        $products->bar_code = $request->bar_code;
-        $products->stock = $request->stock;
-        $products->description = $request->description;
-        $products->state = $request->state;
-        $products->wholesale_price = $request->wholesale_price;
-    
-        // Guardar la imagen si se sube
+        $product = new Product();
+        $product->category_id = $request->category_id;
+        $product->name = $request->name;
+        $product->brand_id = $request->brand_id;
+        $product->sell_price = $request->sell_price;
+        $product->buy_price = $request->buy_price;
+        $product->bar_code = $request->bar_code;
+        $product->stock = $request->stock;
+        $product->description = $request->description;
+        $product->state = $request->state;
+        $product->sku = $request->sku;
+        $product->wholesale_price = $request->wholesale_price;
+        $product->save();
+        // Procesar imágenes si se suben
+        $imagenes = [];
+        $contador=1;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('images', 'public');
-            $products->image = $imagePath;
+            foreach ($request->file('image') as $image) {
+                $nuevoNombre = 'product_' . $product->id . '.' . $contador . $image->extension();
+                $ruta = $image->storeAs('images/product', $nuevoNombre, 'public');
+                $rutaCompleta = asset('storage/' . $ruta);
+                $imagenes[] = $rutaCompleta;
+                $contador++;
+            }
         }
     
-        $products->save();
+        $product->image = $imagenes; // Guardar imágenes como un array
+        $product->save();
     
         return response()->json([
             'message' => 'Producto insertado correctamente',
-            'data' => $products
+            'data' => $product
         ], 201);
     }
+    
     
     /**
      * Display the specified resource.
@@ -68,6 +83,9 @@ class ProductController extends Controller
     public function show(string $id)
     {
         $products = Product::find($id);
+        if (!$products){
+            return response()->json(['message' => 'producto no encontrado'], 400);
+        }
         return $products ? response()->json($products) : response()->json(['error' => 'producto no encontrado'], 404);
     }
 
@@ -76,7 +94,45 @@ class ProductController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $product = Product::find($id);
+        if (!$product){
+            return response()->json(['message' => 'producto no encontrado'], 400);
+        }
+        $validation=$request->validate([
+            'category_id' => '',
+            'name' => '',
+            'brand_id' => '',
+            'sell_price' => '',
+            'buy_price' => '',
+            'bar_code' => '',
+            'stock' => '',
+            'description' => '',
+            'state' => '',
+            'wholesale_price' => '',
+            'sku'=> '',
+            'image.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048' // Validación de imágenes múltiples
+        ]);
+        $product->update($validation);
+        // Procesar imágenes si se suben
+        $imagenes = [];
+        $contador=1;
+        if ($request->hasFile('image')) {
+            foreach ($request->file('image') as $image) {
+                $nuevoNombre = 'product_' . $product->id . '.' . $contador . $image->extension();
+                $ruta = $image->storeAs('images/product', $nuevoNombre, 'public');
+                $rutaCompleta = asset('storage/' . $ruta);
+                $imagenes[] = $rutaCompleta;
+                $contador++;
+            }
+        }
+    
+        $product->image = $imagenes; // Guardar imágenes como un array
+        $product->update();
+    
+        return response()->json([
+            'message' => 'Producto insertado correctamente',
+            'data' => $product
+        ], 201);
     }
 
     /**

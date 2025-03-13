@@ -18,6 +18,11 @@ class BrandController extends Controller
         // return response()->json(Brand::all());
         //->pagination(15)
         $brand = $query->with('products')->get();
+        if(!$brand){
+            return response()->json([
+                'message' => 'brand no encontrada'
+            ],400);
+        }
         return response()->json($brand);
     }
 
@@ -56,6 +61,11 @@ class BrandController extends Controller
 
     public function update(Request $request, $id){
         $brand = Brand::find($id);
+        if(!$brand){
+            return response()->json([
+                'message' => 'brand no encontrada'
+            ],400);
+        }
         $validation = $request->validate([
             'name' => 'string|max:100',
             'description' => 'string|max:100',

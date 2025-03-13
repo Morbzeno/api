@@ -38,7 +38,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('/category', [CategoryController::class, 'index']);
 Route::post('/category', [CategoryController::class, 'store']);
 Route::get('/category/{id}', [CategoryController::class, 'show']);
-Route::put('/category/{id}', [CategoryController::class, 'update']);
+Route::post('/category/{id}', [CategoryController::class, 'update']);
 Route::delete('/category/{id}', [CategoryController::class, 'destroy']);
 
 
@@ -47,6 +47,7 @@ Route::get('/product', [ProductController::class, 'index']);
 Route::get('/product/{id}', [ProductController::class, 'show']);
 Route::delete('/product/{id}', [ProductController::class, 'destroy']);
 Route::post('/product', [ProductController::class, 'store']);
+Route::post('/product/{id}', [ProductController::class, 'update']);
 
 Route::get('/brand', [BrandController::class, 'index']);
 Route::get('/brand/{id}', [BrandController::class, 'show']);
@@ -60,17 +61,18 @@ Route::post('/direction', [DirectionController::class, 'store']);
 Route::delete('/direction/{id}', [DirectionController::class, 'destroy']);
 Route::post('/direction/{id}', [DirectionController::class, 'update']);
 
-Route::middleware(['auth.client'])->group(function () {
+// Route::middleware(['auth.client'])->group(function () {
     Route::get('/user', [UserController::class, 'index']);
     Route::get('/user/{id}', [UserController::class, 'show']);
     Route::post('/user', [UserController::class, 'store']);
     Route::delete('/user/{id}', [UserController::class, 'destroy']);
-    Route::post('/user/{id}', [UserController::class, 'update']);
-});
+    Route::put('/user/{id}', [UserController::class, 'update']);
+// });
 Route::post('/register',[AuthController::class, 'register']);
 Route::post('/login',[AuthController::class, 'login']);
-Route::post('/logout',[AuthController::class, 'logout'])->middleware('auth.client');;
-
+Route::post('/logout',[AuthController::class, 'logout'])->middleware('auth:client');
+Route::get('auth/google', [AuthController::class, 'redirectToGoogle']);
+Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 
 Route::prefix('cart')->group(function () {
     Route::get('/', [CartController::class, 'get']);
@@ -81,10 +83,11 @@ Route::prefix('cart')->group(function () {
     Route::put('/{id}/less', [CartController::class, 'less']);
     Route::delete('/', [CartController::class, 'clear']);
 });
-
+Route::get('/ganancias', [SellController::class, 'gananciasMensuales']);
 Route::prefix('sells')->group(function () {
     Route::get('/', [SellController::class, 'index']);        // Obtener todas las ventas
     Route::get('/{id}', [SellController::class, 'show']);     // Obtener una venta específica
     Route::post('/{id}', [SellController::class, 'store']);       // Crear una nueva venta
-    Route::delete('/{id}', [SellController::class, 'destroy']); // Eliminar una venta específica
+    Route::delete('/{id}', [SellController::class, 'destroy']);
+   // Eliminar una venta específica
 });
