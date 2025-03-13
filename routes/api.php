@@ -52,7 +52,7 @@ Route::get('/brand', [BrandController::class, 'index']);
 Route::get('/brand/{id}', [BrandController::class, 'show']);
 Route::post('/brand', [BrandController::class, 'store']);
 Route::delete('/brand/{id}', [BrandController::class, 'destroy']);
-Route::put('/brand/{id}', [BrandController::class, 'update']);
+Route::post('/brand/{id}', [BrandController::class, 'update']);
 
 Route::get('/direction', [DirectionController::class, 'index']);
 Route::get('/direction/{id}', [DirectionController::class, 'show']);
