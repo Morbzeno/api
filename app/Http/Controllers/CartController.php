@@ -22,24 +22,24 @@ class CartController extends Controller
     //         }
     public function get(Request $request)
     {
-        // $user = $request->user();
-        $client_id = $request->input('client_id');
-        if (!$client_id) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'El campo client_id es obligatorio.'
-            ], 400);
-        }
-        $cart = Cart::with(['client', 'producto_cart' => function ($query) {
-            $query->where('state', 'waiting')->with('producto');
-        }])->where('status', '!=', 'completed')->where('client_id', $client_id)->get();
+         $user = $request->user();
+         $client_id = $request->input('client_id');
+         if (!$client_id) {
+             return response()->json([
+                 'status' => 'error',
+                 'message' => 'El campo client_id es obligatorio.'
+             ], 400);
+         }
+         $cart = Cart::with(['client', 'producto_cart' => function ($query) {
+             $query->where('state', 'waiting')->with('producto');
+         }])->where('status', '!=', 'completed')->where('client_id', $client_id)->get();
         
-        if ($cart->isEmpty()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Carrito no encontrado'
-            ], 404);
-        }
+         if ($cart->isEmpty()) {
+             return response()->json([
+                 'status' => 'error',
+                 'message' => 'Carrito no encontrado'
+             ], 404);
+         }
         
     
         
@@ -50,6 +50,21 @@ class CartController extends Controller
     }
     public function show($id)
     {
+        // $cart = Cart::with(['client', 'producto_cart' => function ($query) {
+        //     $query->where('state', 'waiting')->with('producto');
+        // }])->where('status', '!=', 'completed')->where('client_id', $id)->get();
+    
+        // if ($cart->isEmpty()) {
+        //     return response()->json([
+        //         'status' => 'error',
+        //         'message' => 'Carrito no encontrado'
+        //     ], 404);
+        // }
+    
+        // return response()->json([
+        //     'status' => 'success',
+        //     'data' => $cart
+        // ], 200);
         $cart = Cart::with(['client', 'producto_cart' => function ($query) {
             $query->where('state', 'waiting')->with('producto');
         }])->where('status', '!=', 'completed')->where('client_id', $id)->get();
@@ -60,11 +75,12 @@ class CartController extends Controller
                 'message' => 'Carrito no encontrado'
             ], 404);
         }
-    
+        $total = $cart->sum(fn($c)=>$c->producto_cart->count());
         return response()->json([
             'status' => 'success',
-            'data' => $cart
-        ], 200);
+            'data' => $cart,
+            'number of products:' => $total
+        ], 200);   
     }
     
 
@@ -100,19 +116,21 @@ class CartController extends Controller
             $price = $product->sell_price;
             if ($productCart) {
                 // Si ya existe, actualizar la cantidad y el subtotal
-                $productCart->quantity += $i;
+                $productCart->quantity += 1;
                 $productCart->unit_price = $price;
-                $productCart->subtotal += $price * $i;
+                $productCart->subtotal += $price * 1;
                 $productCart->save();
             } else {
                 // Si no existe, crear un nuevo registro en `products_cart`
-                ProductsCart::create([
+                $productCart = ProductsCart::create([
                     'cart_id' => $cart->id,
                     'product_id' => $request->id,
                     'quantity' => $request->quantity,
                     'subtotal' => $request->price * $request->quantity,
                     'state' => 'waiting'
+
                 ]);
+                $productCart->save();
             }
 
     

@@ -8,6 +8,8 @@ use App\Models\Cart;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+
 
 class SellController extends Controller
 {
@@ -127,7 +129,7 @@ public function store(Request $request, $id)
     {
         $sells = Sell::with([
             'carts.producto_cart.producto.brand',
-            'carts.producto_cart.producto.category'
+            // 'carts.producto_cart.producto.category'
         ])->where('client_id', $id)->get();
 
         if ($sells->isEmpty()) {
@@ -161,4 +163,12 @@ public function store(Request $request, $id)
             'message' => 'Sell deleted successfully'
         ], 200);
     }
-}
+    public function gananciasMensuales(){
+        $sells = Sell::whereRaw("MONTH(CONVERT_TZ(created_at, '+00:00', @@session.time_zone)) = ?", [2])
+            ->whereRaw("YEAR(CONVERT_TZ(created_at, '+00:00', @@session.time_zone)) = ?", [2025])
+            ->sum('total');
+    
+        return response()->json(['ventas del mes' => $sells]);
+    }
+    }
+

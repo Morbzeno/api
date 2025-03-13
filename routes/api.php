@@ -82,10 +82,11 @@ Route::prefix('cart')->group(function () {
     Route::put('/{id}/less', [CartController::class, 'less']);
     Route::delete('/', [CartController::class, 'clear']);
 });
-
+Route::get('/ganancias', [SellController::class, 'gananciasMensuales']);
 Route::prefix('sells')->group(function () {
     Route::get('/', [SellController::class, 'index']);        // Obtener todas las ventas
     Route::get('/{id}', [SellController::class, 'show']);     // Obtener una venta específica
     Route::post('/{id}', [SellController::class, 'store']);       // Crear una nueva venta
-    Route::delete('/{id}', [SellController::class, 'destroy']); // Eliminar una venta específica
+    Route::delete('/{id}', [SellController::class, 'destroy']);
+   // Eliminar una venta específica
 });
