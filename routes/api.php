@@ -72,6 +72,7 @@ Route::post('/direction/{id}', [DirectionController::class, 'update']);
 
 Route::post('/register',[AuthController::class, 'register']);
 Route::post('/login',[AuthController::class, 'login']);
+Route::delete('/deleteUser',[AuthController::class, 'deleteUser']);
 
 Route::get('auth/google', [AuthController::class, 'redirectToGoogle']);
 Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
