@@ -61,14 +61,15 @@ Route::post('/direction', [DirectionController::class, 'store']);
 Route::delete('/direction/{id}', [DirectionController::class, 'destroy']);
 Route::post('/direction/{id}', [DirectionController::class, 'update']);
 
-Route::middleware(['auth.client'])->group(function () {
+// Route::middleware(['auth.client'])->group(function () {
     Route::get('/user', [UserController::class, 'index']);
     Route::get('/user/{id}', [UserController::class, 'show']);
     Route::post('/user', [UserController::class, 'store']);
     Route::delete('/user/{id}', [UserController::class, 'destroy']);
     Route::put('/user/{id}', [UserController::class, 'update']);
     Route::post('/logout',[AuthController::class, 'logout']);
- });
+//  });
+
 Route::post('/register',[AuthController::class, 'register']);
 Route::post('/login',[AuthController::class, 'login']);
 

@@ -113,7 +113,10 @@ class CartController extends Controller
                 ->where('state', 'waiting')
                 ->first();
             $product = Product::find($request->id);
-            $price = $product->sell_price;
+            $price = $product->buy_price;
+            if ($product->stock === 0){
+                return response()->json(['message'=>'No tenemos las existencias, una disculpa'], 400);
+            }
             if ($productCart) {
                 // Si ya existe, actualizar la cantidad y el subtotal
                 $productCart->quantity += 1;
@@ -230,6 +233,9 @@ class CartController extends Controller
         if (!$product) {
             return response()->json(['status' => 'error', 'message' => 'Producto no encontrado.'], 404);
         }
+        if ($product->stock === 0){
+            return response()->json(['message'=>'No tenemos las existencias, una disculpa'], 400);
+        }
     
         // Buscar el producto en el carrito con estado 'waiting'
         $productCart = ProductsCart::where('cart_id', $cart->id)
@@ -242,7 +248,7 @@ class CartController extends Controller
     
         // Actualizar la cantidad y el subtotal del producto
         $productCart->quantity += 1;
-        $productCart->subtotal = $productCart->quantity * $product->sell_price; // Precio directo de la base de datos
+        $productCart->subtotal = $productCart->quantity * $product->buy_price; // Precio directo de la base de datos
         $productCart->save();
     
         // Recalcular el total del carrito sumando todos los subtotales de los productos en el carrito
@@ -291,7 +297,7 @@ class CartController extends Controller
         }
         // Actualizar la cantidad y el subtotal del producto
         $productCart->quantity -= 1;
-        $productCart->subtotal = $productCart->quantity * $product->sell_price; // Precio directo de la base de datos
+        $productCart->subtotal = $productCart->quantity * $product->buy_price; // Precio directo de la base de datos
         $productCart->save();
     
         // Recalcular el total del carrito sumando todos los subtotales de los productos en el carrito
