@@ -56,7 +56,7 @@ public function store(Request $request, $id)
             }
 
             if ($producto->stock < $productoCarrito->quantity) {
-                throw new \Exception("No hay suficiente stock de: {$producto->name}. Stock actual: {$producto->stock}, solicitado: {$productoCarrito->quantity}");
+                return response()->json(["No hay suficiente stock de: {$producto->name}. Stock actual: {$producto->stock}, solicitado: {$productoCarrito->quantity}"],400);
             }
         }
 
