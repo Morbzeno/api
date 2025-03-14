@@ -22,8 +22,8 @@ public function store(Request $request, $id)
     try {
         // Validar los datos
         $validated = $request->validate([
-           //  'direction_id' => 'required|exists:directions,id',
-           //  'purchase_method' => 'nullable|string',
+             'direction_id' => 'required|exists:directions,id',
+             'purchase_method' => 'nullable|string',
         ]);
 
         // Obtener el carrito activo del cliente
@@ -64,9 +64,9 @@ public function store(Request $request, $id)
         $sell = Sell::create([
             'cart_id' => $cart->id,
             'client_id' => $id,
-           // 'direction_id' => $request->direction_id,
+            'direction_id' => $request->direction_id,
             'iva' => $iva,
-           // 'purchase_method' => $request->purchase_method,
+            'purchase_method' => $request->purchase_method,
         ]);
 
         // Reducir el stock de cada producto ahora que sabemos que hay suficiente
