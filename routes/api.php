@@ -67,10 +67,11 @@ Route::middleware(['auth.client'])->group(function () {
     Route::post('/user', [UserController::class, 'store']);
     Route::delete('/user/{id}', [UserController::class, 'destroy']);
     Route::put('/user/{id}', [UserController::class, 'update']);
+    Route::post('/logout',[AuthController::class, 'logout']);
  });
 Route::post('/register',[AuthController::class, 'register']);
 Route::post('/login',[AuthController::class, 'login']);
-Route::post('/logout',[AuthController::class, 'logout'])->middleware('auth:client');
+
 Route::get('auth/google', [AuthController::class, 'redirectToGoogle']);
 Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 

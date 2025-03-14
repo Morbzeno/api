@@ -30,5 +30,9 @@ class Product extends Model
     {
         return $this->belongsTo(Brand::class, 'brand_id', '_id');
     }
+    public function producto_cart()
+ {
+     return $this->hasMany(ProductsCart::class, 'product_id', '_id'); // Ajusta el nombre de la clave foránea si es necesario
+ }
     protected $hidden = ['category_id', 'brand_id'];
 }

@@ -28,10 +28,10 @@ class BrandController extends Controller
 
     public function store(Request $request){
         $request->validate([
-            'name' => 'required|string|max:100',
+            'name' => 'required|string|max:100|unique:brands,name', // Definir el campo específico 'name' en la tabla brands
             'description' => 'required|string|max:100',
             'contact' => 'required|string|max:100',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048' // Validación para imágenes
         ]);
         $brand = Brand::create($request->only('name', 'description', 'contact'));
         if ($request->hasFile('image')) {
@@ -67,10 +67,10 @@ class BrandController extends Controller
             ],400);
         }
         $validation = $request->validate([
-            'name' => 'string|max:100',
+            'name' => 'string|max:100|unique:brands,name', // Definir el campo específico 'name' en la tabla brands
             'description' => 'string|max:100',
             'contact' => 'string|max:100',
-            'image' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
+            'image' => 'image|mimes:jpeg,png,jpg,gif|max:2048' // Validación para imágenes
         ]);
         $brand->update($validation);
         if ($request->hasFile('image')) {
