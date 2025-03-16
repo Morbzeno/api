@@ -31,17 +31,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-
-
-
-
 Route::get('/category', [CategoryController::class, 'index']);
 Route::post('/category', [CategoryController::class, 'store']);
 Route::get('/category/{id}', [CategoryController::class, 'show']);
 Route::post('/category/{id}', [CategoryController::class, 'update']);
 Route::delete('/category/{id}', [CategoryController::class, 'destroy']);
-
-
 
 Route::get('/product', [ProductController::class, 'index']);
 Route::get('/product/{id}', [ProductController::class, 'show']);
@@ -88,6 +82,5 @@ Route::prefix('sells')->group(function () {
     Route::get('/', [SellController::class, 'index']);        // Obtener todas las ventas
     Route::get('/{id}', [SellController::class, 'show']);     // Obtener una venta específica
     Route::post('/{id}', [SellController::class, 'store']);       // Crear una nueva venta
-    Route::delete('/{id}', [SellController::class, 'destroy']);
-   // Eliminar una venta específica
+    Route::delete('/{id}', [SellController::class, 'destroy']);   // Eliminar una venta específica
 });

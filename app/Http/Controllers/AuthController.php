@@ -19,12 +19,13 @@ class AuthController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'lastName' => 'required|string|max:255',
-            'email' => 'required|email|unique:admins',
+            'email' => 'required|email|unique:users,id',
             'password' => 'required|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'socialMedia' => 'required|string|max:255',
             'phone' => 'required|integer',
             // 'status' => 'required|string|max:255',
+            // 'address' => 'required|string|max:255'
              // Validación de image
         ]);
     
@@ -37,16 +38,17 @@ class AuthController extends Controller
         $User->socialMedia = $request->socialMedia;
         $User->phone = $request->phone;
         // $User->status = $request->status;
+        // $User->address = $request->address;
     
         // Verificar si hay una image en la solicitud
-        if ($request->hasFile('image')) { 
+        if ($request->hasFile('image')) {
             $img = $request->file('image');
-            $nuevoNombre = 'user_' . $User->id . '.' . $img->extension();
+            $nuevoNombre = 'user_' . $user->id . '.' . $img->extension();
             $ruta = $img->storeAs('images/user', $nuevoNombre, 'public');
             $rutaCompleta = asset('storage/' . $ruta);
 
-            $User->image = $rutaCompleta;
-            $User->update();
+            $user->image = $rutaCompleta;
+            $user->update();
         }
     
         // Guardar en la base de datos
@@ -60,44 +62,60 @@ class AuthController extends Controller
 
     // Inicio de sesión
 
-public function login(Request $request)
-{
-    $request->validate([
-        'email'    => 'required|email',
-        'password' => 'required',
-    ]);
-
-    $User = User::where('email', $request->email)->first();
-
-    if (!$User || !Hash::check($request->password, $User->password)) {
-        return response()->json(['message' => 'Credenciales inválidas'], 401);
+    public function login(Request $request)
+    {
+        // Validar los datos de entrada
+        $request->validate([
+            'email'    => 'required|email',
+            'password' => 'required',
+        ]);
+    
+        // Buscar el usuario en la base de datos
+        $User = User::where('email', $request->email)->first();
+    
+        // Comprobar si el usuario existe y si la contraseña es correcta
+        if (!$User || !Hash::check($request->password, $User->password)) {
+            return response()->json(['message' => 'Credenciales inválidas'], 401);
+        }
+    
+        // Generar un token único para la sesión
+        $token = Str::random(60);
+    
+        // Guardar el token en la base de datos (hashing del token por seguridad)
+        $User->token = hash('sha256', $token);
+        $User->save();
+    
+        // Eliminar el campo 'token' del objeto User para que no se devuelva en la respuesta
+        $User->makeHidden(['token']); // Esto evita que el token antiguo se incluya en la respuesta
+    
+        // Retornar la respuesta con el token generado
+        return response()->json([
+            'message' => 'Login correcto',
+            'token'   => $token,
+            'User'    => $User
+        ]);
     }
+    
 
-    // Generar un token único
-    $token = $User->createToken('auth_token')->plainTextToken;
-
-    return response()->json([
-        'message' => 'Login correcto',
-        'token'   => $token,
-        'User'  => $User
-    ]);
-}
+    
 
 
 
     // Cierre de sesión
     public function logout(Request $request)
     {
-        $user = $request::user();
+        $user = Auth::user();
         
         if (!$user) {
             return response()->json(['message' => 'No autenticado'], 401);
         }
     
-        $user->tokens()->delete(); // Elimina todos los tokens activos
+        $user->token = null; // Eliminar token manualmente
+        $user->save();
     
         return response()->json(['message' => 'Cierre de sesión exitoso']);
     }
+    
     
 
     // Redirigir a Google
@@ -138,4 +156,3 @@ public function login(Request $request)
         }
     }
 }
-
