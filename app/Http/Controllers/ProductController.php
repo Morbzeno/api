@@ -169,4 +169,18 @@ class ProductController extends Controller
         $products->delete();
         return response()->json(['message' => 'producto eliminado'], 200);
     }
+    public function moreStock(string $id, Request $request){
+        $product = Product::find($id);
+        if (!$product){
+            return response()->json(['message' => 'producto no encontrado'], 400);
+        }
+        $request->validate([
+            'aumento' => 'required'
+        ]);
+        $product->stock += $request->aumento;
+        $product->save();
+        return response()->json([
+            'message' => "se añadieron: {$request->aumento} de: {$product->name}"
+        ]);
+    }
 }
