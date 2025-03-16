@@ -22,8 +22,8 @@ public function store(Request $request, $id)
     try {
         // Validar los datos
         $validated = $request->validate([
-            // 'direction_id' => 'required|exists:directions,id',
-            // 'purchase_method' => 'nullable|string',
+             'direction_id' => 'required|exists:directions,id',
+             'purchase_method' => 'nullable|string',
         ]);
 
         // Obtener el carrito activo del cliente
@@ -56,7 +56,7 @@ public function store(Request $request, $id)
             }
 
             if ($producto->stock < $productoCarrito->quantity) {
-                throw new \Exception("No hay suficiente stock de: {$producto->name}. Stock actual: {$producto->stock}, solicitado: {$productoCarrito->quantity}");
+                return response()->json(["No hay suficiente stock de: {$producto->name}. Stock actual: {$producto->stock}, solicitado: {$productoCarrito->quantity}"],400);
             }
         }
 
@@ -64,7 +64,7 @@ public function store(Request $request, $id)
         $sell = Sell::create([
             'cart_id' => $cart->id,
             'client_id' => $id,
-            // 'direction_id' => $request->direction_id,
+            'direction_id' => $request->direction_id,
             'iva' => $iva,
             'purchase_method' => $request->purchase_method,
         ]);
@@ -114,7 +114,7 @@ public function store(Request $request, $id)
     {
          
         $sells = Cart::with([
-            'producto_cart.producto.brand',
+            'producto_cart.producto.brand:id,name',
         ])->where('status', 'completed')->get();
     
         return response()->json([
@@ -128,7 +128,7 @@ public function store(Request $request, $id)
     public function show($id)
     {
         $sells = Sell::with([
-            'carts.producto_cart.producto:id.brand:id,name',
+            'carts.producto_cart.product:id.brand:id,name',
             // 'carts.producto_cart.producto.category'
         ])->where('client_id', $id)->get();
 

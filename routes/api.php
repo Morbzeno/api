@@ -42,6 +42,7 @@ Route::get('/product/{id}', [ProductController::class, 'show']);
 Route::delete('/product/{id}', [ProductController::class, 'destroy']);
 Route::post('/product', [ProductController::class, 'store']);
 Route::post('/product/{id}', [ProductController::class, 'update']);
+Route::put('/moreStock/{id}', [ProductController::class, 'moreStock']);
 
 Route::get('/brand', [BrandController::class, 'index']);
 Route::get('/brand/{id}', [BrandController::class, 'show']);
@@ -55,16 +56,19 @@ Route::post('/direction', [DirectionController::class, 'store']);
 Route::delete('/direction/{id}', [DirectionController::class, 'destroy']);
 Route::post('/direction/{id}', [DirectionController::class, 'update']);
 
-Route::middleware(['auth.client'])->group(function () {
+// Route::middleware(['auth.client'])->group(function () {
     Route::get('/user', [UserController::class, 'index']);
     Route::get('/user/{id}', [UserController::class, 'show']);
     Route::post('/user', [UserController::class, 'store']);
     Route::delete('/user/{id}', [UserController::class, 'destroy']);
     Route::put('/user/{id}', [UserController::class, 'update']);
- });
+    Route::post('/logout',[AuthController::class, 'logout']);
+//  });
+
 Route::post('/register',[AuthController::class, 'register']);
 Route::post('/login',[AuthController::class, 'login']);
-Route::post('/logout',[AuthController::class, 'logout'])->middleware('auth:client');
+Route::delete('/deleteUser',[AuthController::class, 'deleteUser']);
+
 Route::get('auth/google', [AuthController::class, 'redirectToGoogle']);
 Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 

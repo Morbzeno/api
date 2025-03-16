@@ -88,6 +88,11 @@ class CartController extends Controller
     {
         $i=1;
         $client_id = $request->input('client_id');
+        if (!$client_id) {
+            return response()->json([
+                'message' => 'Cliente no encontrado'
+            ]);
+        }
         try {
             // Validar los datos del formulario
             $request->validate([
@@ -113,7 +118,7 @@ class CartController extends Controller
                 ->where('state', 'waiting')
                 ->first();
             $product = Product::find($request->id);
-            $price = $product->sell_price;
+            $price = $product->buy_price;
             if ($productCart) {
                 // Si ya existe, actualizar la cantidad y el subtotal
                 $productCart->quantity += 1;
@@ -159,7 +164,11 @@ class CartController extends Controller
     public function quitItem(Request $request, $id)
     {
         $client_id = $request->input('client_id');
-    
+        if (!$client_id) {
+            return response()->json([
+                'message' => 'Cliente no encontrado'
+            ]);
+        }
         try {
             // Buscar el carrito del cliente
             $cart = Cart::where('client_id', $client_id)->where('status', '!=', 'completed')->first();
@@ -212,6 +221,11 @@ class CartController extends Controller
     {
         
         $client_id = $request->input('client_id');
+        if (!$client_id) {
+            return response()->json([
+                'message' => 'Cliente no encontrado'
+            ]);
+        }
    // Obtener el ID del cliente autenticado
    
         // $clientId = auth()->id();
@@ -242,7 +256,7 @@ class CartController extends Controller
     
         // Actualizar la cantidad y el subtotal del producto
         $productCart->quantity += 1;
-        $productCart->subtotal = $productCart->quantity * $product->sell_price; // Precio directo de la base de datos
+        $productCart->subtotal = $productCart->quantity * $product->buy_price; // Precio directo de la base de datos
         $productCart->save();
     
         // Recalcular el total del carrito sumando todos los subtotales de los productos en el carrito
@@ -255,6 +269,11 @@ class CartController extends Controller
     public function less(Request $request, $id)
     {
         $client_id = $request->input('client_id');
+        if (!$client_id) {
+            return response()->json([
+                'message' => 'Cliente no encontrado'
+            ]);
+        }
    // Obtener el ID del cliente autenticado
    
         // $clientId = auth()->id();
@@ -291,7 +310,7 @@ class CartController extends Controller
         }
         // Actualizar la cantidad y el subtotal del producto
         $productCart->quantity -= 1;
-        $productCart->subtotal = $productCart->quantity * $product->sell_price; // Precio directo de la base de datos
+        $productCart->subtotal = $productCart->quantity * $product->buy_price; // Precio directo de la base de datos
         $productCart->save();
     
         // Recalcular el total del carrito sumando todos los subtotales de los productos en el carrito
@@ -304,6 +323,11 @@ class CartController extends Controller
     public function clear(Request $request)
     {
         $client_id = $request->input('client_id');
+        if (!$client_id) {
+            return response()->json([
+                'message' => 'Cliente no encontrado'
+            ]);
+        }
     
         try {
             // Buscar el carrito del cliente

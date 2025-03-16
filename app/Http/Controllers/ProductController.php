@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\Category;
 
 class ProductController extends Controller
 {
@@ -23,13 +24,15 @@ class ProductController extends Controller
 
             $query->where('name', 'regexp', new \MongoDB\BSON\Regex($search, 'i'));
 
-            $query->orWhereHas('category', function($query) use ($search) {
-                $query->where('name', 'regexp', new \MongoDB\BSON\Regex($search, 'i'));
-            });
     }
+    // $query2 = Category::query();
+    //     if ($request->has('searchCategory')){
+    //         $searchCategory = $request->input('searchCategory');
+
+    //         $query2->where('name', 'regexp', new \MongoDB\BSON\Regex($searchCategory, 'i'));
         // return response()->json(Direction::all());
-        //->pagination(15)
-        $product = $query->with('category:id,name', 'brand:id,name')->get();
+        //
+        $product = $query->with('category:id,name', 'brand:id,name')->paginate(15);
         if ($product->isEmpty()){
             return response()->json(['message' => 'producto no encontrado'],400);
         }
@@ -37,7 +40,7 @@ class ProductController extends Controller
     
         
     }
-    
+
     
     /**
      * Store a newly created resource in storage.
@@ -50,12 +53,12 @@ class ProductController extends Controller
             'brand_id' => 'required',
             'retail_price' => 'required',
             'buy_price' => 'required',
-            'bar_code' => '',
+            'bar_code' => 'unique:products,bar_code',
             'stock' => 'required',
             'description' => 'required',
             'state' => 'required',
             'wholesale_price' => 'required',
-            'sku' => '',
+            'sku' => 'unique:products,sku',
             'image.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048' // Validación de imágenes múltiples
 
         ]);
@@ -165,5 +168,19 @@ class ProductController extends Controller
         }
         $products->delete();
         return response()->json(['message' => 'producto eliminado'], 200);
+    }
+    public function moreStock(string $id, Request $request){
+        $product = Product::find($id);
+        if (!$product){
+            return response()->json(['message' => 'producto no encontrado'], 400);
+        }
+        $request->validate([
+            'aumento' => 'required'
+        ]);
+        $product->stock += $request->aumento;
+        $product->save();
+        return response()->json([
+            'message' => "se añadieron: {$request->aumento} de: {$product->name}"
+        ]);
     }
 }

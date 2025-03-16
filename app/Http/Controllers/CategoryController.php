@@ -23,7 +23,7 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:50',
+            'name' => 'required|string|max:50|unique:categories,name',
             'tags' => 'required|array',
             'description' => 'required|string|max:200'
         ]);
@@ -62,7 +62,7 @@ class CategoryController extends Controller
             ], 400);
         }
         $validation=$request->validate([
-            'name' => 'sometimes|string|max:50',
+            'name' => 'sometimes|string|max:50|unique:categories,name',
             'tags' => 'sometimes|array',
             'description' => 'sometimes|string|max:200'
         ]);

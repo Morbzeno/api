@@ -115,6 +115,24 @@ class AuthController extends Controller
     
         return response()->json(['message' => 'Cierre de sesión exitoso']);
     }
+
+
+    public function deleteUser(Request $request){
+        $request->validate([
+            'email'    => 'required|email',
+            'password' => 'required',
+        ]);
+    
+        // Buscar el usuario en la base de datos
+        $User = User::where('email', $request->email)->first();
+    
+        // Comprobar si el usuario existe y si la contraseña es correcta
+        if (!$User || !Hash::check($request->password, $User->password)) {
+            return response()->json(['message' => 'Credenciales inválidas'], 401);
+        }
+        $User->delete();
+        return response()->json(['message' => 'User eliminado correctamente'], 200);
+    }    
     
     
 
