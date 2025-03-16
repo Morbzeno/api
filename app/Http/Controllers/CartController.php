@@ -88,6 +88,11 @@ class CartController extends Controller
     {
         $i=1;
         $client_id = $request->input('client_id');
+        if (!$client_id) {
+            return response()->json([
+                'message' => 'Cliente no encontrado'
+            ]);
+        }
         try {
             // Validar los datos del formulario
             $request->validate([
@@ -114,9 +119,6 @@ class CartController extends Controller
                 ->first();
             $product = Product::find($request->id);
             $price = $product->buy_price;
-            if ($product->stock === 0){
-                return response()->json(['message'=>'No tenemos las existencias, una disculpa'], 400);
-            }
             if ($productCart) {
                 // Si ya existe, actualizar la cantidad y el subtotal
                 $productCart->quantity += 1;
@@ -162,7 +164,11 @@ class CartController extends Controller
     public function quitItem(Request $request, $id)
     {
         $client_id = $request->input('client_id');
-    
+        if (!$client_id) {
+            return response()->json([
+                'message' => 'Cliente no encontrado'
+            ]);
+        }
         try {
             // Buscar el carrito del cliente
             $cart = Cart::where('client_id', $client_id)->where('status', '!=', 'completed')->first();
@@ -215,6 +221,11 @@ class CartController extends Controller
     {
         
         $client_id = $request->input('client_id');
+        if (!$client_id) {
+            return response()->json([
+                'message' => 'Cliente no encontrado'
+            ]);
+        }
    // Obtener el ID del cliente autenticado
    
         // $clientId = auth()->id();
@@ -232,9 +243,6 @@ class CartController extends Controller
         $product = Product::find($id);
         if (!$product) {
             return response()->json(['status' => 'error', 'message' => 'Producto no encontrado.'], 404);
-        }
-        if ($product->stock === 0){
-            return response()->json(['message'=>'No tenemos las existencias, una disculpa'], 400);
         }
     
         // Buscar el producto en el carrito con estado 'waiting'
@@ -261,6 +269,11 @@ class CartController extends Controller
     public function less(Request $request, $id)
     {
         $client_id = $request->input('client_id');
+        if (!$client_id) {
+            return response()->json([
+                'message' => 'Cliente no encontrado'
+            ]);
+        }
    // Obtener el ID del cliente autenticado
    
         // $clientId = auth()->id();
@@ -310,6 +323,11 @@ class CartController extends Controller
     public function clear(Request $request)
     {
         $client_id = $request->input('client_id');
+        if (!$client_id) {
+            return response()->json([
+                'message' => 'Cliente no encontrado'
+            ]);
+        }
     
         try {
             // Buscar el carrito del cliente

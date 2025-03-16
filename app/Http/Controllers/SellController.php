@@ -114,7 +114,7 @@ public function store(Request $request, $id)
     {
          
         $sells = Cart::with([
-            'producto_cart.producto.brand',
+            'producto_cart.producto.brand:id,name',
         ])->where('status', 'completed')->get();
     
         return response()->json([
