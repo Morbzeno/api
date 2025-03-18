@@ -95,3 +95,7 @@ Route::prefix('sells')->group(function () {
     Route::delete('/{id}', [SellController::class, 'destroy']);
    // Eliminar una venta específica
 });
+
+Route::get('/paypal/success', [CartController::class, 'paypalSuccess'])->name('paypal.success');
+Route::get('/paypal/cancel', [SellController::class, 'paypalCancel'])->name('paypal.cancel');
+

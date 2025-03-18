@@ -15,7 +15,7 @@ class Sell extends Model
     protected $connection='mongodb';
     protected $collection='sells';
     protected $fillable = [
-        'cart_id', 'client_id', 'direction_id', 'total', 'iva', 'purchase_method'
+        'cart_id', 'client_id', 'direction_id', 'total', 'iva', 'purchase_method', 'paypal_order_id', 'status'
     ]; 
     public function carts()
         {

@@ -6,10 +6,13 @@ use Illuminate\Http\Request;
 use App\Models\Cart;
 use App\Models\Product;
 use App\Models\ProductsCart;
+use App\Models\Sell;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
+
 
 class CartController extends Controller
 // implements HasMiddleware
@@ -86,13 +89,13 @@ class CartController extends Controller
 
     public function add(Request $request)
     {
-        $i=1;
         $client_id = $request->input('client_id');
         if (!$client_id) {
             return response()->json([
                 'message' => 'Cliente no encontrado'
-            ]);
+            ], 400);
         }
+    
         try {
             // Validar los datos del formulario
             $request->validate([
@@ -112,32 +115,37 @@ class CartController extends Controller
                 ]);
             }
     
+            // Buscar el producto
+            $product = Product::find($request->id);
+            if (!$product) {
+                return response()->json(['error' => 'Producto no encontrado'], 404);
+            }
+    
+            $price = $product->buy_price; // Obtener el precio desde la BD
+    
             // Buscar si el producto ya está en el carrito
             $productCart = ProductsCart::where('cart_id', $cart->id)
                 ->where('product_id', $request->id)
                 ->where('state', 'waiting')
                 ->first();
-            $product = Product::find($request->id);
-            $price = $product->buy_price;
+    
             if ($productCart) {
                 // Si ya existe, actualizar la cantidad y el subtotal
                 $productCart->quantity += 1;
-                $productCart->unit_price = $price;
-                $productCart->subtotal += $price * 1;
+                $productCart->unit_price = $price; // Asegurar que el precio siempre se actualice
+                $productCart->subtotal = $productCart->quantity * $price;
                 $productCart->save();
             } else {
                 // Si no existe, crear un nuevo registro en `products_cart`
                 $productCart = ProductsCart::create([
                     'cart_id' => $cart->id,
                     'product_id' => $request->id,
-                    'quantity' => $request->quantity,
-                    'subtotal' => $request->price * $request->quantity,
+                    'quantity' => 1,
+                    'unit_price' => $price, // Agregar el precio correcto
+                    'subtotal' => $price * 1, // Corregir el cálculo del subtotal
                     'state' => 'waiting'
-
                 ]);
-                $productCart->save();
             }
-
     
             // Calcular el nuevo total sumando solo los productos "waiting"
             $total = ProductsCart::where('cart_id', $cart->id)
@@ -432,12 +440,87 @@ class CartController extends Controller
     }
 
     // Método para manejar la respuesta exitosa de PayPal (cuando el usuario paga)
-    public function paypalReturn(Request $request)
+    public function paypalSuccess(Request $request)
     {
-        // Aquí manejarías la confirmación de la transacción si el pago fue exitoso
-        // Podrías verificar el pago con PayPal usando el 'order_id' o 'token' devuelto.
-        return response()->json(['status' => 'success', 'message' => 'Pago realizado con éxito']);
+        DB::beginTransaction();
+    
+        // Obtener el token de la orden desde PayPal
+        $order_id = $request->query('token');
+        if (!$order_id) {
+            return response()->json(['error' => 'Orden de PayPal no encontrada'], 400);
+        }
+    
+        // Credenciales de PayPal
+        $paypal_client_id = config('services.paypal.client_id');
+        $paypal_secret = config('services.paypal.secret');
+        $paypal_mode = config('services.paypal.mode') === 'sandbox' ? 'sandbox' : 'live';
+    
+        $paypal_base_url = $paypal_mode === 'sandbox'
+            ? 'https://api-m.sandbox.paypal.com/v2/checkout/orders/'
+            : 'https://api-m.paypal.com/v2/checkout/orders/';
+    
+        // Consultar el estado de la orden en PayPal
+        $response = Http::withBasicAuth($paypal_client_id, $paypal_secret)
+            ->get($paypal_base_url . $order_id);
+    
+        if ($response->failed()) {
+            \Log::error('Error al verificar la orden en PayPal: ', $response->json());
+            return response()->json(['error' => 'No se pudo verificar el pago en PayPal'], 500);
+        }
+    
+        $orderData = $response->json();
+    
+        // Verificar si la orden está aprobada antes de capturar el pago
+        if (!isset($orderData['status']) || $orderData['status'] !== 'APPROVED') {
+            \Log::warning("Orden de PayPal no aprobada: ", $orderData);
+            return response()->json(['error' => 'El pago aún no ha sido aprobado'], 400);
+        }
+    
+        // Buscar la venta asociada a la orden de PayPal
+        $sell = Sell::where('paypal_order_id', $order_id)->first();
+        if (!$sell) {
+            \Log::error("Venta no encontrada para la orden PayPal: {$order_id}");
+            return response()->json(['error' => 'Venta no encontrada'], 404);
+        }
+    
+        // Confirmar la venta y actualizar el estado
+        $sell->update(['status' => 'completed']);
+    
+        // 🔹 Actualizar el estado del carrito a "completed"
+        $cart = Cart::find($sell->cart_id);
+        if ($cart) {
+            $cart->update(['status' => 'completed']);
+        } else {
+            \Log::error("Carrito no encontrado para la venta: {$sell->cart_id}");
+        }
+    
+        // Obtener productos del carrito
+        $productosEnCarrito = ProductsCart::where('cart_id', $sell->cart_id)->get();
+    
+        foreach ($productosEnCarrito as $productoCarrito) {
+            $producto = Product::find($productoCarrito->product_id);
+            if ($producto) {
+                // Reducir stock asegurando que no sea negativo
+                if ($producto->stock >= $productoCarrito->quantity) {
+                    $producto->decrement('stock', $productoCarrito->quantity);
+                    $productoCarrito->update(['state' => 'sold']); // Marcar los productos como vendidos
+                } else {
+                    \Log::warning("Stock insuficiente para el producto: {$producto->id}");
+                }
+            } else {
+                \Log::error("Producto no encontrado: {$productoCarrito->product_id}");
+            }
+        }
+    
+        DB::commit();
+    
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Pago confirmado, venta y carrito completados'
+        ], 200);
     }
+    
+    
 
     // Método para manejar la cancelación de PayPal (cuando el usuario cancela el pago)
     public function paypalCancel(Request $request)
@@ -445,4 +528,6 @@ class CartController extends Controller
         // Aquí manejarías si el usuario cancela el pago
         return response()->json(['status' => 'error', 'message' => 'Pago cancelado por el usuario']);
     }
+    
+    
 }

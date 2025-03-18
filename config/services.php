@@ -35,6 +35,14 @@ return [
     'client_secret' => env('GOOGLE_CLIENT_SECRET'),
     'redirect' => env('GOOGLE_REDIRECT_URI'),
 ],
+'paypal' => [
+    'client_id' => env('PAYPAL_CLIENT_ID'),
+    'secret' => env('PAYPAL_SECRET'),
+    'mode' => env('PAYPAL_MODE', 'sandbox'), // Puede ser 'sandbox' o 'live'
+    'sandbox_url' => 'https://api-m.sandbox.paypal.com', // URL de sandbox
+    'live_url' => 'https://api-m.paypal.com', // URL en producción
+],
+
 
 
 ];

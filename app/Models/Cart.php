@@ -15,7 +15,7 @@ class Cart extends Model
     protected $connection = 'mongodb';
     protected $collection = 'carts';
 
-    protected $fillable = ['client_id', 'product_id', 'total'];
+    protected $fillable = ['client_id', 'product_id', 'total', 'status'];
 
     protected $casts = [
         'total' => 'float'
