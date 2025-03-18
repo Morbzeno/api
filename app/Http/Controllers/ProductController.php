@@ -13,32 +13,21 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        // $products = Product::with('category:id,name', 'brand:id,name')->get();
-        // if (!$products){
-        //     return response()->json(['message' => 'no se encuentran productos'], 400);
-        // }
-        // return response()->json($products->toArray(), 200);
         $query = Product::query();
         if ($request->has('search')){
             $search = $request->input('search');
 
             $query->where('name', 'regexp', new \MongoDB\BSON\Regex($search, 'i'));
 
-    }
-    // $query2 = Category::query();
-    //     if ($request->has('searchCategory')){
-    //         $searchCategory = $request->input('searchCategory');
-
-    //         $query2->where('name', 'regexp', new \MongoDB\BSON\Regex($searchCategory, 'i'));
-        // return response()->json(Direction::all());
-        //
+        }
         $product = $query->with('category:id,name', 'brand:id,name')->paginate(15);
         if ($product->isEmpty()){
-            return response()->json(['message' => 'producto no encontrado'],400);
+            return response()->json(['message' => 'productos no encontrados'],400);
         }
-        return response()->json($product);
-    
-        
+        return response()->json([
+            'message'=>'productos encontrados:',
+            'data' => $product
+        ],200);
     }
 
     

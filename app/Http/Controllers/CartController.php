@@ -525,8 +525,17 @@ class CartController extends Controller
     // Método para manejar la cancelación de PayPal (cuando el usuario cancela el pago)
     public function paypalCancel(Request $request)
     {
-        // Aquí manejarías si el usuario cancela el pago
-        return response()->json(['status' => 'error', 'message' => 'Pago cancelado por el usuario']);
+        $order_id = $request->query('token');
+        if (!$order_id) {
+            return response()->json(['error' => 'Orden de PayPal no encontrada'], 400);
+        }
+        $sell = Sell::where('paypal_order_id', $order_id)->first();
+        if (!$sell) {
+            \Log::error("Venta no encontrada para la orden PayPal: {$order_id}");
+            return response()->json(['error' => 'Venta no encontrada'], 404);
+        }
+        $sell->delete();
+        return response()->json(['status' => 'error', 'message' => 'Pago cancelado por el usuario'],200);
     }
     
     

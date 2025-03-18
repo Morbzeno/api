@@ -24,6 +24,7 @@ class SellController extends Controller
         // Validar los datos de la petición
         $validated = $request->validate([
             'purchase_method' => 'nullable|string',
+            'direction_id' => 'required|exist:directions,id'
         ]);
 
         // Obtener el carrito activo del cliente
@@ -33,6 +34,9 @@ class SellController extends Controller
 
         if (!$cart) {
             return response()->json(['status' => 'error', 'message' => 'No se encontró un carrito activo para este cliente.'], 404);
+        }
+        if ($cart->total === 0) {
+            return response()->json(['status' => 'error', 'message' => 'No hay productos en el carrito.'], 404);
         }
 
         // Calcular el total de la compra
@@ -74,7 +78,7 @@ class SellController extends Controller
                 'purchase_units' => [
                     [
                         'amount' => [
-                            'currency_code' => 'USD',
+                            'currency_code' => 'MXN',
                             'value' => $totalConIva
                         ],
                         'description' => 'Compra de productos en tu carrito'
@@ -100,6 +104,7 @@ class SellController extends Controller
         $sell = Sell::create([
             'cart_id' => $cart->id,
             'client_id' => $id,
+            'direction_id' => $request->direction_id,
             'iva' => $iva,
             'purchase_method' => 'paypal',
             'paypal_order_id' => $paypal_order['id'], // Guardar el ID de la orden de PayPal
