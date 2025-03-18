@@ -134,6 +134,7 @@ class AuthController extends Controller
         return response()->json(['message' => 'User eliminado correctamente'], 200);
     }    
     
+    
 
     // Redirigir a Google
     public function redirectToGoogle()
@@ -173,4 +174,3 @@ class AuthController extends Controller
         }
     }
 }
-
