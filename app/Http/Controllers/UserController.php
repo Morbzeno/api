@@ -16,7 +16,15 @@ class UserController extends Controller
     public function show($id)
     {
         $user = User::find($id);  //Show te manda un usuario en especifico en base a su id de mongo
-        return $user ? response()->json($user) : response()->json(['error' => 'User no encontrado'], 404); //mensaje de error
+        if(!$user){
+            return response()->json([
+                'response' => 'usuarios no encontrados'
+            ], 404);
+        }
+        return response()->json([
+            "message" => 'usuario recuperado con exito',
+            "data" => $user
+        ],200);
     }
 
     public function store(Request $request)
