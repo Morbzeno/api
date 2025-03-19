@@ -58,6 +58,7 @@ class ProductController extends Controller
         $product->name = $request->name;
         $product->brand_id = $request->brand_id;
         $product->retail_price = $request->retail_price;
+        $product->sell_price = $request->sell_price;
         $product->buy_price = $request->buy_price;
         $product->bar_code = $request->bar_code;
         $product->stock = $request->stock;
@@ -115,6 +116,7 @@ class ProductController extends Controller
             'name' => '',
             'brand_id' => '',
             'retail_price' => '',
+            'sell_price' => '',
             'buy_price' => '',
             'bar_code' => '',
             'stock' => '',
