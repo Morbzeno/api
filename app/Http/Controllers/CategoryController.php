@@ -14,12 +14,25 @@ class CategoryController extends Controller
     {
         // return response()->json(Category::all());
         $categories = Category::with('products')->get();
-        return response()->json($categories);
+        if(!$categories){
+            return response()->json(['no hay productos registrados'],400);
+        }
+        return response()->json([
+            "message" => 'aqui todas las categorias',
+            "data" => $categories],200);
     }
 
     /**
      * Store a newly created resource in storage.
      */
+
+     public function show($id)
+     {
+         $categories = Category::with('products')->find($id);
+         return $categories ? response()->json($categories) : response()->json(['error' => 'categorie no encontrado'], 404);
+ 
+     }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -42,12 +55,7 @@ class CategoryController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id)
-    {
-        $categories = Category::with('products')->find($id);
-        return $categories ? response()->json($categories) : response()->json(['error' => 'categorie no encontrado'], 404);
 
-    }
 
     /**
      * Update the specified resource in storage.

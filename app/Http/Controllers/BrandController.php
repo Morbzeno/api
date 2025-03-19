@@ -18,12 +18,14 @@ class BrandController extends Controller
         // return response()->json(Brand::all());
         //->pagination(15)
         $brand = $query->with('products')->get();
-        if(!$brand){
+        if($brand->isEmpty()){
             return response()->json([
                 'message' => 'brand no encontrada'
             ],400);
         }
-        return response()->json($brand);
+        return response()->json([
+            "message" => 'brand encontrada',
+            "data"=>$brand]);
     }
 
     public function store(Request $request){
@@ -54,7 +56,8 @@ class BrandController extends Controller
             ],400);
         }
         return response()->json([
-            $brand
+            "message" => 'brand encontrada',
+            "data" => $brand
         ],200);
 
     }

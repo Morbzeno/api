@@ -164,10 +164,6 @@ class CartController extends Controller
             return response()->json(['error' => 'Hubo un problema al añadir el producto: ' . $e->getMessage()], 500);
         }
     }
-    
-    
-
-
 
     public function quitItem(Request $request, $id)
     {
@@ -222,8 +218,6 @@ class CartController extends Controller
             ], 500);
         }
     }
-    
-    
 
     public function more(Request $request, $id)
     {
@@ -234,13 +228,6 @@ class CartController extends Controller
                 'message' => 'Cliente no encontrado'
             ]);
         }
-   // Obtener el ID del cliente autenticado
-   
-        // $clientId = auth()->id();
-        // if (!$clientId) {
-        //     return response()->json(['status' => 'error', 'message' => 'Usuario no autenticado.'], 401);
-        // }
-    
         // Obtener el carrito del cliente
         $cart = Cart::where('client_id', $client_id)->where('status', '!=', 'completed')->with('producto_cart')->first();
         if (!$cart) {
@@ -282,13 +269,7 @@ class CartController extends Controller
                 'message' => 'Cliente no encontrado'
             ]);
         }
-   // Obtener el ID del cliente autenticado
-   
-        // $clientId = auth()->id();
-        // if (!$clientId) {
-        //     return response()->json(['status' => 'error', 'message' => 'Usuario no autenticado.'], 401);
-        // }
-    
+  
         // Obtener el carrito del cliente
         $cart = Cart::where('client_id', $client_id)->where('status', '!=', 'completed')->with('producto_cart')->first();
         if (!$cart) {
@@ -379,7 +360,6 @@ class CartController extends Controller
             ], 500);
         }
     }
-
 
     public function createPaypalOrder(Request $request)
     {
@@ -520,8 +500,6 @@ class CartController extends Controller
         ], 200);
     }
     
-    
-
     // Método para manejar la cancelación de PayPal (cuando el usuario cancela el pago)
     public function paypalCancel(Request $request)
     {

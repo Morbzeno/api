@@ -139,6 +139,10 @@ class SellController extends Controller
             'producto_cart.producto.brand:id,name',
         ])->where('status', 'completed')->get();
     
+        if(!$sells){
+            return response()->json(["message" => 'no se encontraron ventas'],400);
+        }
+
         return response()->json([
             'status' => 'success',
             'data' => $sells

@@ -10,12 +10,22 @@ class UserController extends Controller
 {
     public function index()
     {
-        return response()->json(User::all());  //Index te devuelve todos los usuarios y solamente eso
+        $users = User::all();
+
+        if(!$users){
+            return response()->json([
+                'message' => 'no se encontraron usuarios',
+                ],400);
+        }
+        return response()->json([
+            'message' => 'Todos los usuarios aquí',
+            'data' => $users
+        ],200);  //Index te devuelve todos los usuarios y solamente eso
     }
 
     public function show($id)
     {
-        $user = User::find($id);  //Show te manda un usuario en especifico en base a su id de mongo
+        $user = User::find($id);
         if(!$user){
             return response()->json([
                 'response' => 'usuarios no encontrados'
