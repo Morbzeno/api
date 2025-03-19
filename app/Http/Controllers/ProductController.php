@@ -41,6 +41,7 @@ class ProductController extends Controller
             'name' => 'required',
             'brand_id' => 'required',
             'retail_price' => 'required',
+            'sell_price' => 'required',
             'buy_price' => 'required',
             'bar_code' => 'unique:products,bar_code',
             'stock' => 'required',
