@@ -42,7 +42,6 @@ class ProductController extends Controller
             'name' => 'required',
             'brand_id' => 'required|exists:brands,id',
             'retail_price' => 'required|numeric',
-            'sell_price' => 'required|numeric',
             'buy_price' => 'required|numeric',
             'bar_code' => 'unique:products,bar_code',
             'stock' => 'required|integer',
@@ -59,7 +58,6 @@ class ProductController extends Controller
         $product->name = $request->name;
         $product->brand_id = $request->brand_id;
         $product->retail_price = $request->retail_price;
-        $product->sell_price = $request->sell_price;
         $product->buy_price = $request->buy_price;
         $product->bar_code = $request->bar_code;
         $product->stock = $request->stock;
@@ -117,7 +115,6 @@ class ProductController extends Controller
             'name' => '',
             'brand_id' => 'exists:brands,id',
             'retail_price' => 'numeric',
-            'sell_price' => 'numeric',
             'buy_price' => 'numeric',
             'bar_code' => '',
             'stock' => 'integer',

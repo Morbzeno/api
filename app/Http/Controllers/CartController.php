@@ -123,7 +123,7 @@ class CartController extends Controller
                 return response()->json(['error' => 'Producto no encontrado'], 404);
             }
     
-            $price = $product->sell_price; // Obtener el precio desde la BD
+            $price = $product->retail_price; // Obtener el precio desde la BD
     
             // Buscar si el producto ya está en el carrito
             $productCart = ProductsCart::where('cart_id', $cart->id)
@@ -253,7 +253,7 @@ class CartController extends Controller
     
         // Actualizar la cantidad y el subtotal del producto
         $productCart->quantity += 1;
-        $productCart->subtotal = $productCart->quantity * $product->sell_price; // Precio directo de la base de datos
+        $productCart->subtotal = $productCart->quantity * $product->retai_price; // Precio directo de la base de datos
         $productCart->save();
     
         // Recalcular el total del carrito sumando todos los subtotales de los productos en el carrito
@@ -301,7 +301,7 @@ class CartController extends Controller
         }
         // Actualizar la cantidad y el subtotal del producto
         $productCart->quantity -= 1;
-        $productCart->subtotal = $productCart->quantity * $product->sell_price; // Precio directo de la base de datos
+        $productCart->subtotal = $productCart->quantity * $product->retai_price; // Precio directo de la base de datos
         $productCart->save();
     
         // Recalcular el total del carrito sumando todos los subtotales de los productos en el carrito
