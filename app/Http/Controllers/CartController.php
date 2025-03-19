@@ -40,7 +40,8 @@ class CartController extends Controller
          if ($cart->isEmpty()) {
              return response()->json([
                  'status' => 'error',
-                 'message' => 'Carrito no encontrado'
+                 'message' => 'Carrito no encontrado',
+                 'data' => 0
              ], 404);
          }
         
@@ -75,7 +76,8 @@ class CartController extends Controller
         if ($cart->isEmpty()) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Carrito no encontrado'
+                'message' => 'Carrito no encontrado',
+                "data" => 0
             ], 404);
         }
         $total = $cart->sum(fn($c)=>$c->producto_cart->count());

@@ -24,7 +24,7 @@ class SellController extends Controller
         // Validar los datos de la petición
         $validated = $request->validate([
             'purchase_method' => 'nullable|string',
-            'direction_id' => 'required|exist:directions,id'
+            'direction_id' => 'required|exists:directions,id'
         ]);
 
         // Obtener el carrito activo del cliente
@@ -134,13 +134,14 @@ class SellController extends Controller
     // Mostrar todas las ventas
     public function index()
     {
-         
         $sells = Cart::with([
             'producto_cart.producto.brand:id,name',
         ])->where('status', 'completed')->get();
     
         if(!$sells){
-            return response()->json(["message" => 'no se encontraron ventas'],400);
+            return response()->json([
+                "message" => 'no se encontraron ventas', 
+                "data" => 0],400);
         }
 
         return response()->json([
@@ -161,7 +162,8 @@ class SellController extends Controller
         if ($sells->isEmpty()) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'user not found'
+                'message' => 'user not found',
+                'data' => 0
             ], 404);
         }
 
