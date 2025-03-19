@@ -79,7 +79,7 @@ class SellController extends Controller
                     [
                         'amount' => [
                             'currency_code' => 'MXN',
-                            'value' => $totalConIva
+                            'value' => $total
                         ],
                         'description' => 'Compra de productos en tu carrito'
                     ]

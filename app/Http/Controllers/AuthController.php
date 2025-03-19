@@ -37,7 +37,7 @@ class AuthController extends Controller
         $User->password = Hash::make($request->password);
         $User->socialMedia = $request->socialMedia;
         $User->phone = $request->phone;
-        // $User->status = $request->status;
+        $User->role = 'client';
         // $User->address = $request->address;
     
         // Verificar si hay una image en la solicitud

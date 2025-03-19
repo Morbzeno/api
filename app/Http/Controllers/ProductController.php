@@ -22,7 +22,8 @@ class ProductController extends Controller
         }
         $product = $query->with('category:id,name', 'brand:id,name')->paginate(15);
         if ($product->isEmpty()){
-            return response()->json(['message' => 'productos no encontrados'],400);
+            return response()->json(['message' => 'productos no encontrados'
+        ],400);
         }
         return response()->json([
             'message'=>'productos encontrados:',
@@ -37,14 +38,14 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'category_id' => 'required',
+            'category_id' => 'required|exists:category,id',
             'name' => 'required',
-            'brand_id' => 'required',
-            'retail_price' => 'required',
-            'sell_price' => 'required',
-            'buy_price' => 'required',
+            'brand_id' => 'required|exists:brands,id',
+            'retail_price' => 'required|numeric',
+            'sell_price' => 'required|numeric',
+            'buy_price' => 'required|numeric',
             'bar_code' => 'unique:products,bar_code',
-            'stock' => 'required',
+            'stock' => 'required|integer',
             'description' => 'required',
             'state' => 'required',
             'wholesale_price' => 'required',
@@ -112,17 +113,17 @@ class ProductController extends Controller
             return response()->json(['message' => 'producto no encontrado'], 400);
         }
         $validation=$request->validate([
-            'category_id' => '',
+            'category_id' => 'exists:categories,id',
             'name' => '',
-            'brand_id' => '',
-            'retail_price' => '',
-            'sell_price' => '',
-            'buy_price' => '',
+            'brand_id' => 'exists:brands,id',
+            'retail_price' => 'numeric',
+            'sell_price' => 'numeric',
+            'buy_price' => 'numeric',
             'bar_code' => '',
-            'stock' => '',
+            'stock' => 'integer',
             'description' => '',
             'state' => '',
-            'wholesale_price' => '',
+            'wholesale_price' => 'numeric',
             'sku'=> '',
             'image.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048' // Validación de imágenes múltiples
         ]);
@@ -167,7 +168,7 @@ class ProductController extends Controller
             return response()->json(['message' => 'producto no encontrado'], 400);
         }
         $request->validate([
-            'aumento' => 'required'
+            'aumento' => 'required|integer'
         ]);
         $product->stock += $request->aumento;
         $product->save();
