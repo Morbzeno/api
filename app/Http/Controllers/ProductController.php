@@ -20,7 +20,7 @@ class ProductController extends Controller
             $query->where('name', 'regexp', new \MongoDB\BSON\Regex($search, 'i'));
 
         }
-        $product = $query->with('category:id,name', 'brand:id,name')->paginate(15);
+        $product = $query->with('category:id,name', 'brand:id,name')->get();
         if ($product->isEmpty()){
             return response()->json(['message' => 'productos no encontrados'
         ],400);
