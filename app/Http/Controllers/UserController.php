@@ -37,7 +37,7 @@ class UserController extends Controller
         ],200);
     }
 
-    public function store(Request $request)
+    public function     store(Request $request)
     {
     //estos son los campos que se deben de mandar, algunos pueden ser nulos y no pueden repetirse emails
         $request->validate([  
