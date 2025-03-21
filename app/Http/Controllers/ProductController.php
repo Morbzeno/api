@@ -20,7 +20,7 @@ class ProductController extends Controller
             $query->where('name', 'regexp', new \MongoDB\BSON\Regex($search, 'i'));
 
         }
-        $product = $query->with('category:id,name', 'brand:id,name')->paginate(15);
+        $product = $query->with('category:id,name', 'brand:id,name')->get();
         if ($product->isEmpty()){
             return response()->json(['message' => 'productos no encontrados'
         ],400);
@@ -38,11 +38,10 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'category_id' => 'required|exists:category,id',
+            'category_id' => 'required|exists:categories,id',
             'name' => 'required',
             'brand_id' => 'required|exists:brands,id',
             'retail_price' => 'required|numeric',
-            'sell_price' => 'required|numeric',
             'buy_price' => 'required|numeric',
             'bar_code' => 'unique:products,bar_code',
             'stock' => 'required|integer',
@@ -59,7 +58,6 @@ class ProductController extends Controller
         $product->name = $request->name;
         $product->brand_id = $request->brand_id;
         $product->retail_price = $request->retail_price;
-        $product->sell_price = $request->sell_price;
         $product->buy_price = $request->buy_price;
         $product->bar_code = $request->bar_code;
         $product->stock = $request->stock;
@@ -117,7 +115,6 @@ class ProductController extends Controller
             'name' => '',
             'brand_id' => 'exists:brands,id',
             'retail_price' => 'numeric',
-            'sell_price' => 'numeric',
             'buy_price' => 'numeric',
             'bar_code' => '',
             'stock' => 'integer',

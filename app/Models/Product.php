@@ -15,7 +15,7 @@ class Product extends Model
     protected $connection= 'mongodb';
     protected $collection= 'products';
     protected $fillable = [
-        'category_id', 'name', 'brand_id', 'sell_price', 'buy_price', 'sku',
+        'category_id', 'name', 'brand_id', 'retail_price', 'buy_price', 'sku',
         'bar_code', 'stock', 'description', 'state', 'wholesale_price', 'image'];
 
         protected $casts = [
