@@ -37,13 +37,15 @@ class DirectionController extends Controller
     public function store(Request $request){
         $request->validate([
             'user_id' => 'required|exists:users,id',
-            'state' => 'required',
-            'city' => 'required',
-              'postal_code' => 'required',
-             'name' => 'required',
-        'residence' => 'required',
-        'description' => 'required',
+            'state' => 'required|string|max:255',
+            'city' => 'required|string|max:255',
+            'postal_code' => 'required|digits:5', // Suponiendo que es código postal de 5 dígitos
+            'name' => 'required|string|max:255',
+            'residence' => 'required|string|max:255',
+            'description' => 'required|string|max:500',
+            'default' => 'sometimes|boolean', // Permite omitirlo si no es obligatorio
         ]);
+        
 
         $total = Direction::where('user_id', $request->user_id)->count();
 
@@ -80,6 +82,7 @@ class DirectionController extends Controller
              'name' => '',
         'residence' => '',
         'description' => '',
+        'description' => 'boolean'
         ]);
         $direction->update($validate);
         return response()->json([
