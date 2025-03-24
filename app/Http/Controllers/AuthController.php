@@ -24,7 +24,7 @@ class AuthController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'socialMedia' => 'required|string|max:255',
             'phone' => 'required|integer',
-            // 'status' => 'required|string|max:255',
+            'role' => 'string|max:255',
             // 'address' => 'required|string|max:255'
              // Validación de image
         ]);
@@ -37,7 +37,13 @@ class AuthController extends Controller
         $User->password = Hash::make($request->password);
         $User->socialMedia = $request->socialMedia;
         $User->phone = $request->phone;
-        $User->role = 'client';
+        if($Urer->role){
+            $User->role = $request->role;
+        }
+        if(!$Urer->role){
+            $User->role = 'client';
+        }
+        
         // $User->address = $request->address;
     
         // Verificar si hay una image en la solicitud

@@ -101,11 +101,6 @@ class CartController extends Controller
         if (!$quantity){
             $request->quantity = 1;
         }
-        if ($quantity <=0 ) {
-            return response()->json([
-                'message' => 'cantidad no valida'
-            ], 400);
-        }
         try {
             // Validar los datos del formulario
             $request->validate([
