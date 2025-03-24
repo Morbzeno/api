@@ -68,6 +68,10 @@ class AuthController extends Controller
         $request->validate([
             'email'    => 'required|email',
             'password' => 'required',
+        ],[
+            'email.required' => 'El campo email es obligatorio',
+            'email.email' => 'El campo email debe ser un email válido',
+            'password.required' => 'El campo contraseña es obligatorio',
         ]);
     
         // Buscar el usuario en la base de datos
