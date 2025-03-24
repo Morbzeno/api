@@ -92,12 +92,20 @@ class CartController extends Controller
     public function add(Request $request)
     {
         $client_id = $request->input('client_id');
+        $quantity = $request->input('quantity');
         if (!$client_id) {
             return response()->json([
                 'message' => 'Cliente no encontrado'
             ], 400);
         }
-    
+        if (!$quantity){
+            $request->quantity = 1;
+        }
+        if ($quantity <=0 ) {
+            return response()->json([
+                'message' => 'cantidad no valida'
+            ], 400);
+        }
         try {
             // Validar los datos del formulario
             $request->validate([
@@ -133,7 +141,7 @@ class CartController extends Controller
     
             if ($productCart) {
                 // Si ya existe, actualizar la cantidad y el subtotal
-                $productCart->quantity += 1;
+                $productCart->quantity += $request->quantity;
                 $productCart->unit_price = $price; // Asegurar que el precio siempre se actualice
                 $productCart->subtotal = $productCart->quantity * $price;
                 $productCart->save();
@@ -142,7 +150,7 @@ class CartController extends Controller
                 $productCart = ProductsCart::create([
                     'cart_id' => $cart->id,
                     'product_id' => $request->id,
-                    'quantity' => 1,
+                    'quantity' => $request->quantity,
                     'unit_price' => $price, // Agregar el precio correcto
                     'subtotal' => $price * 1, // Corregir el cálculo del subtotal
                     'state' => 'waiting'
@@ -253,7 +261,7 @@ class CartController extends Controller
     
         // Actualizar la cantidad y el subtotal del producto
         $productCart->quantity += 1;
-        $productCart->subtotal = $productCart->quantity * $product->retai_price; // Precio directo de la base de datos
+        $productCart->subtotal = $productCart->quantity * $product->retail_price; // Precio directo de la base de datos
         $productCart->save();
     
         // Recalcular el total del carrito sumando todos los subtotales de los productos en el carrito
@@ -301,7 +309,7 @@ class CartController extends Controller
         }
         // Actualizar la cantidad y el subtotal del producto
         $productCart->quantity -= 1;
-        $productCart->subtotal = $productCart->quantity * $product->retai_price; // Precio directo de la base de datos
+        $productCart->subtotal = $productCart->quantity * $product->retail_price; // Precio directo de la base de datos
         $productCart->save();
     
         // Recalcular el total del carrito sumando todos los subtotales de los productos en el carrito
