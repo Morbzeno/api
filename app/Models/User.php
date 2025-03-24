@@ -27,7 +27,7 @@ class User extends Model implements AuthenticatableContract
 
     public function direction()
     {
-        return $this->hasMany(Direction::class, 'direction_id', '_id'); 
+        return $this->hasMany(Direction::class, 'user_id', '_id'); 
     }
     public function carts(){
         return $this->hasOne(Cart::class, 'Cart_id', '_id' );

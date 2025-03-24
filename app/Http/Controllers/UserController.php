@@ -10,7 +10,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::all();
+        $users = User::with('direction')->get();
 
         if(!$users){
             return response()->json([
@@ -25,7 +25,7 @@ class UserController extends Controller
 
     public function show($id)
     {
-        $user = User::find($id);
+        $user = User::with('direction')->find($id);
         if(!$user){
             return response()->json([
                 'response' => 'usuarios no encontrados'

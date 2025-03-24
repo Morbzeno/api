@@ -32,6 +32,10 @@ class SellController extends Controller
                     ->where('status', '!=', 'completed')
                     ->first();
 
+        $user = User::find($id);            
+        if (!$user) {
+            return response()->json(['status' => 'error', 'message' => 'Usuario no encontrado'], 404);
+        }
         if (!$cart) {
             return response()->json(['status' => 'error', 'message' => 'No se encontró un carrito activo para este cliente.'], 404);
         }
@@ -154,8 +158,8 @@ class SellController extends Controller
     // Mostrar una venta específica
     public function show($id)
     {
-        $sells = Sell::with([
-            'carts.producto_cart.product:id.brand:id,name',
+        $sells = Cart::with([
+            'producto_cart.producto:id.brand:id,name',
             // 'carts.producto_cart.producto.category'
         ])->where('client_id', $id)->get();
 
