@@ -11,6 +11,8 @@ class SensorController extends Controller
         $data = Sensor::Create([
             'lux' => $request->input('lux'),
             'humity' => $request->input('humity'),
+            'temp' => $request->input('temp'),
+            'smoke' => $request->input('smoke'),
         ]);
     return response()->json([
         'message' => 'Datos guardados',

@@ -16,5 +16,5 @@ class Sensor extends Model
     protected $connection= 'mongodb';
     protected $collection= 'sensors';
     protected $fillable = [
-        'lux', 'humity'];
+        'lux', 'humity', 'temp', 'smoke'];
 }
