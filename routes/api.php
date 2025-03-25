@@ -31,7 +31,7 @@ Route::get('/ping', function (Request $request) {
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-
+Route::middleware(['auth.client'])->group(function () {
 Route::get('/category', [CategoryController::class, 'index']);
 Route::post('/category', [CategoryController::class, 'store']);
 Route::get('/category/{id}', [CategoryController::class, 'show']);
@@ -57,17 +57,16 @@ Route::post('/direction', [DirectionController::class, 'store']);
 Route::delete('/direction/{id}', [DirectionController::class, 'destroy']);
 Route::post('/direction/{id}', [DirectionController::class, 'update']);
 
-// Route::middleware(['auth.client'])->group(function () {
+
     Route::get('/user', [UserController::class, 'index']);
     Route::get('/user/{id}', [UserController::class, 'show']);
     Route::post('/user', [UserController::class, 'store']);
     Route::delete('/user/{id}', [UserController::class, 'destroy']);
     Route::put('/user/{id}', [UserController::class, 'update']);
     Route::post('/logout',[AuthController::class, 'logout']);
-//  });
+  
 
-Route::post('/register',[AuthController::class, 'register']);
-Route::post('/login',[AuthController::class, 'login']);
+
 Route::delete('/deleteUser',[AuthController::class, 'deleteUser']);
 
 Route::get('auth/google', [AuthController::class, 'redirectToGoogle']);
@@ -96,3 +95,8 @@ Route::get('/paypal/cancel', [SellController::class, 'paypalCancel'])->name('pay
 
 Route::post('/sensor',[SensorController::class, 'store']);
 Route::get('/sensor',[SensorController::class, 'index']);
+
+});
+
+Route::post('/register',[AuthController::class, 'register']);
+Route::post('/login',[AuthController::class, 'login']);
