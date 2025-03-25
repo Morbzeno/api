@@ -10,6 +10,7 @@ use App\Http\Controllers\DirectionController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\SellController;
+use App\Http\Controllers\SensorController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -93,3 +94,5 @@ Route::prefix('sells')->group(function () {
 Route::get('/paypal/success', [CartController::class, 'paypalSuccess'])->name('paypal.success');
 Route::get('/paypal/cancel', [SellController::class, 'paypalCancel'])->name('paypal.cancel');
 
+Route::post('/sensor',[SensorController::class, 'store']);
+Route::get('/sensor',[SensorController::class, 'index']);

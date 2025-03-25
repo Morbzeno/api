@@ -101,6 +101,7 @@ class CartController extends Controller
         if (!$quantity){
             $request->quantity = 1;
         }
+
         try {
             // Validar los datos del formulario
             $request->validate([

@@ -37,10 +37,10 @@ class AuthController extends Controller
         $User->password = Hash::make($request->password);
         $User->socialMedia = $request->socialMedia;
         $User->phone = $request->phone;
-        if($Urer->role){
+        if($User->role){
             $User->role = $request->role;
         }
-        if(!$Urer->role){
+        if(!$User->role){
             $User->role = 'client';
         }
         
