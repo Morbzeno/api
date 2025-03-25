@@ -43,18 +43,21 @@ Route::post('/product', [ProductController::class, 'store']);
 Route::post('/product/{id}', [ProductController::class, 'update']);
 Route::put('/moreStock/{id}', [ProductController::class, 'moreStock']);
 
-
+Route::get('/brand', [BrandController::class, 'index']);
+Route::get('/brand/{id}', [BrandController::class, 'show']);
 Route::post('/brand', [BrandController::class, 'store']);
 Route::delete('/brand/{id}', [BrandController::class, 'destroy']);
 Route::post('/brand/{id}', [BrandController::class, 'update']);
 
-
+Route::get('/direction', [DirectionController::class, 'index']);
+Route::get('/direction/{id}', [DirectionController::class, 'show']);
 Route::post('/direction', [DirectionController::class, 'store']);
 Route::delete('/direction/{id}', [DirectionController::class, 'destroy']);
 Route::post('/direction/{id}', [DirectionController::class, 'update']);
 
 
-
+    Route::get('/user', [UserController::class, 'index']);
+    Route::get('/user/{id}', [UserController::class, 'show']);
     Route::post('/user', [UserController::class, 'store']);
     Route::delete('/user/{id}', [UserController::class, 'destroy']);
     Route::put('/user/{id}', [UserController::class, 'update']);
@@ -92,14 +95,3 @@ Route::get('/paypal/cancel', [SellController::class, 'paypalCancel'])->name('pay
 
 Route::post('/register',[AuthController::class, 'register']);
 Route::post('/login',[AuthController::class, 'login']);
-Route::post('/sensor',[SensorController::class, 'store']);
-Route::get('/sensor',[SensorController::class, 'index']);
-
-Route::get('auth/google', [AuthController::class, 'redirectToGoogle']);
-Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
-Route::get('/user', [UserController::class, 'index']);
-Route::get('/user/{id}', [UserController::class, 'show']);
-Route::get('/direction', [DirectionController::class, 'index']);
-Route::get('/direction/{id}', [DirectionController::class, 'show']);
-Route::get('/product', [ProductController::class, 'index']);
-Route::get('/product/{id}', [ProductController::class, 'show']);
