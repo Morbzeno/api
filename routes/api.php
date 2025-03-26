@@ -31,20 +31,18 @@ Route::get('/ping', function (Request $request) {
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
- Route::middleware(['auth.client'])->group(function () {
+Route::middleware(['auth.client'])->group(function () {
 
-Route::get('/category/{id}', [CategoryController::class, 'show']);
+Route::post('/category', [CategoryController::class, 'store']);
 Route::post('/category/{id}', [CategoryController::class, 'update']);
 Route::delete('/category/{id}', [CategoryController::class, 'destroy']);
-
 
 Route::delete('/product/{id}', [ProductController::class, 'destroy']);
 Route::post('/product', [ProductController::class, 'store']);
 Route::post('/product/{id}', [ProductController::class, 'update']);
+
 Route::put('/moreStock/{id}', [ProductController::class, 'moreStock']);
 
-Route::get('/brand', [BrandController::class, 'index']);
-Route::get('/brand/{id}', [BrandController::class, 'show']);
 Route::post('/brand', [BrandController::class, 'store']);
 Route::delete('/brand/{id}', [BrandController::class, 'destroy']);
 Route::post('/brand/{id}', [BrandController::class, 'update']);
@@ -58,7 +56,6 @@ Route::post('/direction/{id}', [DirectionController::class, 'update']);
 
     Route::get('/user', [UserController::class, 'index']);
     Route::get('/user/{id}', [UserController::class, 'show']);
-    Route::post('/user', [UserController::class, 'store']);
     Route::delete('/user/{id}', [UserController::class, 'destroy']);
     Route::put('/user/{id}', [UserController::class, 'update']);
     Route::post('/logout',[AuthController::class, 'logout']);
@@ -67,6 +64,8 @@ Route::post('/direction/{id}', [DirectionController::class, 'update']);
 
 Route::delete('/deleteUser',[AuthController::class, 'deleteUser']);
 
+Route::get('auth/google', [AuthController::class, 'redirectToGoogle']);
+Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 
 Route::prefix('cart')->group(function () {
     Route::get('/', [CartController::class, 'get']);
@@ -89,9 +88,18 @@ Route::prefix('sells')->group(function () {
 Route::get('/paypal/success', [CartController::class, 'paypalSuccess'])->name('paypal.success');
 Route::get('/paypal/cancel', [SellController::class, 'paypalCancel'])->name('paypal.cancel');
 
+Route::post('/sensor',[SensorController::class, 'store']);
+Route::get('/sensor',[SensorController::class, 'index']);
 
-
- });
+});
 
 Route::post('/register',[AuthController::class, 'register']);
 Route::post('/login',[AuthController::class, 'login']);
+
+Route::get('/category', [CategoryController::class, 'index']);
+Route::get('/category/{id}', [CategoryController::class, 'show']);
+Route::get('/brand', [BrandController::class, 'index']);
+Route::get('/brand/{id}', [BrandController::class, 'show']);
+Route::get('/product', [ProductController::class, 'index']);
+Route::get('/product/{id}', [ProductController::class, 'show']);
+Route::post('/user', [UserController::class, 'store']);
