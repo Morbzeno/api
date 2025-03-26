@@ -45,6 +45,7 @@ Route::put('/moreStock/{id}', [ProductController::class, 'moreStock']);
 Route::post('/brand', [BrandController::class, 'store']);
 Route::delete('/brand/{id}', [BrandController::class, 'destroy']);
 Route::post('/brand/{id}', [BrandController::class, 'update']);
+
 Route::get('/direction', [DirectionController::class, 'index']);
 Route::get('/direction/{id}', [DirectionController::class, 'show']);
 Route::post('/direction', [DirectionController::class, 'store']);

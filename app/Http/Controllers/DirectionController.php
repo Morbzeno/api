@@ -78,11 +78,11 @@ class DirectionController extends Controller
         $validate=$request->validate([
             'state' => '',
             'city' => '',
-              'postal_code' => '',
-             'name' => '',
-        'residence' => '',
-        'description' => '',
-        'description' => 'boolean'
+            'postal_code' => '',
+            'name' => '',
+            'residence' => '',
+            'description' => '',
+            'default' => 'boolean'
         ]);
         $direction->update($validate);
         return response()->json([
