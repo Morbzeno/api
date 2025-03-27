@@ -503,11 +503,15 @@ class CartController extends Controller
     
         DB::commit();
     
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Pago confirmado, venta y carrito completados'
-        ], 200);
+        // Construir la URL de redirección al frontend
+        $status = 'success';
+        $message = 'Pago confirmado, venta y carrito completados';
+        $frontendUrl = "http://localhost:5173/paypal/success?status=$status&message=" . urlencode($message);
+    
+        // Redirigir al frontend con los datos en la URL
+        return redirect()->away($frontendUrl);
     }
+    
     
     // Método para manejar la cancelación de PayPal (cuando el usuario cancela el pago)
     public function paypalCancel(Request $request)
