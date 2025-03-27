@@ -84,7 +84,7 @@ class CartController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $cart,
-            'number of products:' => $total
+            'number_of_products:' => $total
         ], 200);   
     }
     

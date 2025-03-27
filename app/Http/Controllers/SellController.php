@@ -170,10 +170,11 @@ class SellController extends Controller
                 'data' => 0
             ], 404);
         }
-
+        $total = $sells->count();
         return response()->json([
             'status' => 'success',
-            'data' => $sells
+            'data' => $sells,
+            'number_of_products:' => $total
         ], 200);
     }
 
