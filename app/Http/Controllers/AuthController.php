@@ -45,7 +45,7 @@ class AuthController extends Controller
         }
         
         // $User->address = $request->address;
-    
+        $User->save();
         // Verificar si hay una image en la solicitud
         if ($request->hasFile('image')) {
             $img = $request->file('image');
@@ -58,7 +58,6 @@ class AuthController extends Controller
         }
     
         // Guardar en la base de datos
-        $User->save();
     
         return response()->json([
             'message' => 'User insertado correctamente',

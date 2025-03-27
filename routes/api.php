@@ -80,6 +80,7 @@ Route::prefix('sells')->group(function () {
     Route::get('/', [SellController::class, 'index']);        // Obtener todas las ventas
     Route::get('/{id}', [SellController::class, 'show']);     // Obtener una venta específica
     Route::post('/{id}', [SellController::class, 'store']);       // Crear una nueva venta
+    Route::post('/ionic/{id}', [SellController::class, 'storeIonic']); 
     Route::delete('/{id}', [SellController::class, 'destroy']);
    // Eliminar una venta específica
 });

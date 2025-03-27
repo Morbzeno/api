@@ -203,4 +203,102 @@ class SellController extends Controller
         return response()->json(['ventas del mes' => $sells]);
     }
 
+    public function storeIonic(Request $request, $id)
+{
+    DB::beginTransaction();
+
+    try {
+        // Validar los datos
+        $validated = $request->validate([
+             'direction_id' => 'required|exists:directions,id',
+             'purchase_method' => 'nullable|string',
+        ]);
+
+        // Obtener el carrito activo del cliente
+        $cart = Cart::where('client_id', $id)
+                    ->where('status', '!=', 'completed')
+                    ->first();
+
+        if (!$cart) {
+            return response()->json(['status' => 'error', 'message' => 'No se encontró un carrito activo para este cliente.'], 404);
+        }
+
+        // Calcular el total
+        $total = ProductsCart::where('cart_id', $cart->id)
+                             ->where('state', 'waiting')
+                             ->sum('subtotal');
+        $iva = $total * 0.16;
+        $totalConIva = $total + $iva;
+
+        // Obtener los productos del carrito
+        $productosEnCarrito = ProductsCart::where('cart_id', $cart->id)
+                                          ->where('state', 'waiting')
+                                          ->get();
+
+        // Verificar que todos los productos tengan stock suficiente antes de continuar
+        foreach ($productosEnCarrito as $productoCarrito) {
+            $producto = Product::find($productoCarrito->product_id);
+            
+            if (!$producto) {
+                throw new \Exception("El producto con ID {$productoCarrito->product_id} no existe.");
+            }
+
+            if ($producto->stock < $productoCarrito->quantity) {
+                return response()->json(["No hay suficiente stock de: {$producto->name}. Stock actual: {$producto->stock}, solicitado: {$productoCarrito->quantity}"],400);
+            }
+        }
+
+        // Crear la venta
+        $sell = Sell::create([
+            'cart_id' => $cart->id,
+            'client_id' => $id,
+            'direction_id' => $request->direction_id,
+            'iva' => $iva,
+            'purchase_method' => 'paypal',
+            'status' => 'completed'
+        ]);
+
+        // Reducir el stock de cada producto ahora que sabemos que hay suficiente
+        $productosEnCarrito = ProductsCart::where('cart_id', $sell->cart_id)->get();
+    
+        foreach ($productosEnCarrito as $productoCarrito) {
+            $producto = Product::find($productoCarrito->product_id);
+            if ($producto) {
+                // Reducir stock asegurando que no sea negativo
+                if ($producto->stock >= $productoCarrito->quantity) {
+                    $producto->decrement('stock', $productoCarrito->quantity);
+                    $productoCarrito->update(['state' => 'sold']); // Marcar los productos como vendidos
+                } else {
+                    \Log::warning("Stock insuficiente para el producto: {$producto->id}");
+                }
+            } else {
+                \Log::error("Producto no encontrado: {$productoCarrito->product_id}");
+            }
+        }
+
+        // Actualizar el estado de los productos en el carrito
+        ProductsCart::where('cart_id', $cart->id)
+                    ->where('state', 'waiting')
+                    ->update(['state' => 'sell', 'sell_id' => $sell->id]);
+
+        // Marcar el carrito como "completed"
+        $cart->status = 'completed';
+        $cart->save();
+
+        // Crear un nuevo carrito para futuras compras
+        DB::commit();
+
+        return response()->json([
+            'status' => 'success',
+            'sell' => $sell,
+        ], 201);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json(['error' => 'No se pudo completar la venta: ' . $e->getMessage()], 500);
     }
+}
+
+    }
+
+
+    
