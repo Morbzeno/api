@@ -31,7 +31,7 @@ Route::get('/ping', function (Request $request) {
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::middleware(['auth.client'])->group(function () {
+// Route::middleware(['auth.client'])->group(function () {
 
 Route::post('/category', [CategoryController::class, 'store']);
 Route::post('/category/{id}', [CategoryController::class, 'update']);
@@ -57,7 +57,7 @@ Route::post('/direction/{id}', [DirectionController::class, 'update']);
     Route::get('/user', [UserController::class, 'index']);
     Route::get('/user/{id}', [UserController::class, 'show']);
     Route::delete('/user/{id}', [UserController::class, 'destroy']);
-    Route::put('/user/{id}', [UserController::class, 'update']);
+    Route::post('/user/{id}', [UserController::class, 'update']);
     Route::post('/logout',[AuthController::class, 'logout']);
   
 
@@ -89,7 +89,7 @@ Route::get('/paypal/cancel', [SellController::class, 'paypalCancel'])->name('pay
 
 
 
-});
+//});
 
 Route::get('auth/google', [AuthController::class, 'redirectToGoogle']);
 Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);

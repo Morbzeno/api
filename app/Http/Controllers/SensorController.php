@@ -7,19 +7,31 @@ use App\Models\Sensor;
 
 class SensorController extends Controller
 {
-    public function store (Request $request){
-        $data = Sensor::Create([
-            'lux' => $request->input('lux'),
-            'humity' => $request->input('humity'),
-            'temp' => $request->input('temp'),
-            'smoke' => $request->input('smoke'),
-        ]);
-    return response()->json([
-        'message' => 'Datos guardados',
-        'data' => $data
-
-    ],201);
+    public function store(Request $request) {
+        $data = Sensor::first();
+    
+        if ($data) {
+            $data->update([
+                'lux' => $request->input('lux'),
+                'humity' => $request->input('humity'),
+                'temp' => $request->input('temp'),
+                'smoke' => $request->input('smoke'),
+            ]);
+        } else {
+            $data = Sensor::create([
+                'lux' => $request->input('lux'),
+                'humity' => $request->input('humity'),
+                'temp' => $request->input('temp'),
+                'smoke' => $request->input('smoke'),
+            ]);
+        }
+    
+        return response()->json([
+            'message' => 'Datos actualizados',
+            'data' => $data
+        ], 200);
     }
+    
 
     public function index (){
         $data = Sensor::all();
