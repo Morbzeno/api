@@ -86,7 +86,7 @@ class DirectionController extends Controller
         ]);
         $direction->update($validate);
         return response()->json([
-            'response' => 'direccion insertada con exito',
+            'response' => 'direccion actualizada con exito',
             'datos' => $direction
         ],200);
     }

@@ -88,8 +88,7 @@ Route::prefix('sells')->group(function () {
 Route::get('/paypal/success', [CartController::class, 'paypalSuccess'])->name('paypal.success');
 Route::get('/paypal/cancel', [SellController::class, 'paypalCancel'])->name('paypal.cancel');
 
-Route::post('/sensor',[SensorController::class, 'store']);
-Route::get('/sensor',[SensorController::class, 'index']);
+
 
 });
 
@@ -103,3 +102,5 @@ Route::get('/brand/{id}', [BrandController::class, 'show']);
 Route::get('/product', [ProductController::class, 'index']);
 Route::get('/product/{id}', [ProductController::class, 'show']);
 Route::post('/user', [UserController::class, 'store']);
+Route::post('/sensor',[SensorController::class, 'store']);
+Route::get('/sensor',[SensorController::class, 'index']);
