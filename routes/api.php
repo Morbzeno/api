@@ -64,8 +64,7 @@ Route::post('/direction/{id}', [DirectionController::class, 'update']);
 
 Route::delete('/deleteUser',[AuthController::class, 'deleteUser']);
 
-Route::get('auth/google', [AuthController::class, 'redirectToGoogle']);
-Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
+
 
 Route::prefix('cart')->group(function () {
     Route::get('/', [CartController::class, 'get']);
@@ -92,6 +91,8 @@ Route::get('/paypal/cancel', [SellController::class, 'paypalCancel'])->name('pay
 
 });
 
+Route::get('auth/google', [AuthController::class, 'redirectToGoogle']);
+Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 Route::post('/register',[AuthController::class, 'register']);
 Route::post('/login',[AuthController::class, 'login']);
 
