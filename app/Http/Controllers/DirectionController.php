@@ -78,15 +78,15 @@ class DirectionController extends Controller
         $validate=$request->validate([
             'state' => '',
             'city' => '',
-              'postal_code' => '',
-             'name' => '',
-        'residence' => '',
-        'description' => '',
-        'description' => 'boolean'
+            'postal_code' => '',
+            'name' => '',
+            'residence' => '',
+            'description' => '',
+            'default' => 'boolean'
         ]);
         $direction->update($validate);
         return response()->json([
-            'response' => 'direccion insertada con exito',
+            'response' => 'direccion actualizada con exito',
             'datos' => $direction
         ],200);
     }
