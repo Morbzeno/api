@@ -31,7 +31,7 @@ class BrandController extends Controller
     public function store(Request $request){
         $request->validate([
             'name' => 'required|string|max:100|unique:brands,name', // Definir el campo específico 'name' en la tabla brands
-            'description' => 'required|string|max:100',
+            'description' => 'required|string|max:300',
             'contact' => 'required|string|max:100',
             'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048' // Validación para imágenes
         ]);

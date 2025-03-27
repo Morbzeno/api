@@ -172,58 +172,61 @@ class CartController extends Controller
     }
 
     public function quitItem(Request $request, $id)
-    {
-        $client_id = $request->input('client_id');
-        if (!$client_id) {
-            return response()->json([
-                'message' => 'Cliente no encontrado'
-            ]);
-        }
-        try {
-            // Buscar el carrito del cliente
-            $cart = Cart::where('client_id', $client_id)->where('status', '!=', 'completed')->first();
-    
-            if (!$cart) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'No se encontró un carrito activo para el cliente.'
-                ], 404);
-            }
-    
-            // Eliminar el producto del carrito
-            $deleted = ProductsCart::where('cart_id', $cart->id)
-                ->where('product_id', $id)
-                ->where('state', 'waiting')
-                ->delete();
-    
-            // Si no se eliminó ningún producto, retornar error
-            if ($deleted === 0) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'El producto no estaba en el carrito o ya fue procesado.'
-                ], 404);
-            }
-    
-            // Recalcular el total del carrito
-            $total = ProductsCart::where('cart_id', $cart->id)
-                ->where('state', 'waiting')
-                ->sum('subtotal');
-    
-            $cart->total = $total;
-            $cart->save();
-    
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Producto eliminado correctamente.'
-            ], 200);
-    
-        } catch (\Exception $e) {
+{
+    // Acceder al client_id desde los parámetros de consulta (query parameters)
+    $client_id = $request->query('client_id'); 
+
+    if (!$client_id) {
+        return response()->json([
+            'message' => 'Cliente no encontrado'
+        ]);
+    }
+
+    try {
+        // Buscar el carrito del cliente
+        $cart = Cart::where('client_id', $client_id)->where('status', '!=', 'completed')->first();
+
+        if (!$cart) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Hubo un problema al eliminar el producto: ' . $e->getMessage()
-            ], 500);
+                'message' => 'No se encontró un carrito activo para el cliente.'
+            ], 404);
         }
+
+        // Eliminar el producto del carrito
+        $deleted = ProductsCart::where('cart_id', $cart->id)
+            ->where('product_id', $id)
+            ->where('state', 'waiting')
+            ->delete();
+
+        // Si no se eliminó ningún producto, retornar error
+        if ($deleted === 0) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'El producto no estaba en el carrito o ya fue procesado.'
+            ], 404);
+        }
+
+        // Recalcular el total del carrito
+        $total = ProductsCart::where('cart_id', $cart->id)
+            ->where('state', 'waiting')
+            ->sum('subtotal');
+
+        $cart->total = $total;
+        $cart->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Producto eliminado correctamente.'
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Hubo un problema al eliminar el producto: ' . $e->getMessage()
+        ], 500);
     }
+}
 
     public function more(Request $request, $id)
     {
