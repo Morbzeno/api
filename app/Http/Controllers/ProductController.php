@@ -44,7 +44,7 @@ class ProductController extends Controller
             'retail_price' => 'required|numeric',
             'buy_price' => 'required|numeric',
             'bar_code' => 'unique:products,bar_code',
-            'stock' => 'required|integer',
+            'stock' => 'required|integer|min:0',
             'description' => 'required',
             'state' => 'required',
             'wholesale_price' => 'required',
@@ -57,14 +57,14 @@ class ProductController extends Controller
         $product->category_id = $request->category_id;
         $product->name = $request->name;
         $product->brand_id = $request->brand_id;
-        $product->retail_price = $request->retail_price;
-        $product->buy_price = $request->buy_price;
+        $product->retail_price = (float) $request->retail_price;
+        $product->buy_price = (float) $request->buy_price;
         $product->bar_code = $request->bar_code;
-        $product->stock = $request->stock;
+        $product->stock = (int) $request->stock;
         $product->description = $request->description;
         $product->state = $request->state;
         $product->sku = $request->sku;
-        $product->wholesale_price = $request->wholesale_price;
+        $product->wholesale_price = (int) $request->wholesale_price;
         $product->save();
         // Procesar imágenes si se suben
         $imagenes = [];
