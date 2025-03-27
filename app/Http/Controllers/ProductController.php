@@ -80,7 +80,7 @@ class ProductController extends Controller
         }
     
         $product->image = $imagenes; // Guardar imágenes como un array
-        $product->save();
+        $product->update();
     
         return response()->json([
             'message' => 'Producto insertado correctamente',
