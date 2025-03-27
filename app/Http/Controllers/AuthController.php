@@ -157,8 +157,8 @@ class AuthController extends Controller
     {
         try {
             $googleUser = Socialite::driver('google')->stateless()->user();
-            // dd($googleUser);
-            // Buscar o crear usuario
+
+            // Buscar o crear el usuario
             $user = User::updateOrCreate([
                 'email' => $googleUser->getEmail(),
             ], [
@@ -167,17 +167,14 @@ class AuthController extends Controller
                 'google_id' => $googleUser->getId(),
             ]);
 
-            // Generar Token JWT (si usas Sanctum o Passport)
+            // Generar Token
             $token = Str::random(60);
-
-            // Guardar el token en el Usere (MongoDB)
             $user->token = hash('sha256', $token);
             $user->save();
 
-            return response()->json([
-                'user' => $user,
-                'token' => $token
-            ], 200);
+            // 🔹 Redirige de vuelta a tu app con el token
+            $appUrl = 'com.ferreteria.app://auth/callback';
+            return redirect()->to("{$appUrl}?token={$token}&user_id={$user->id}");
 
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error al autenticar'], 500);
