@@ -174,7 +174,7 @@ class CartController extends Controller
     public function quitItem(Request $request, $id)
 {
     // Acceder al client_id desde los parámetros de consulta (query parameters)
-    $client_id = $request->query('client_id'); 
+    $client_id = $request->input('client_id'); 
 
     if (!$client_id) {
         return response()->json([
