@@ -102,6 +102,7 @@ class PayPalController extends Controller
                     'status' => 'success',
                     'message' => 'Pago completado correctamente.',
                     'data' => $response,
+                    
                 ], 200);
             }
 

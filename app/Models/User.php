@@ -15,11 +15,12 @@ class User extends Model implements AuthenticatableContract
     protected $collection= 'Users';
     protected $fillable = [
         'name',
-        'last_name',
+        'lastName',
         'image',
         'email',
         'phone',
         'rfc',
+        'socialMedia',
         'password',
         'role',
         'google_id'

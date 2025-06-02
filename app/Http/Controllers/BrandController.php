@@ -36,6 +36,7 @@ class BrandController extends Controller
             'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048' // Validación para imágenes
         ]);
         $brand = Brand::create($request->only('name', 'description', 'contact'));
+        $brand->save();
         if ($request->hasFile('image')) {
             $img = $request->file('image');
             $nuevoNombre = 'brand_' . $brand->id . '.' . $img->extension();
@@ -43,7 +44,7 @@ class BrandController extends Controller
             $rutaCompleta = asset('storage/' . $ruta);
 
             $brand->image = $rutaCompleta;
-            $brand->save();
+            $brand->update();
         }
         // Create a new brand
         return response()->json($brand);

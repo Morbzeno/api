@@ -31,7 +31,7 @@ Route::get('/ping', function (Request $request) {
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::middleware(['auth.client'])->group(function () {
+// Route::middleware(['auth.client'])->group(function () {
 
 Route::post('/category', [CategoryController::class, 'store']);
 Route::post('/category/{id}', [CategoryController::class, 'update']);
@@ -57,7 +57,7 @@ Route::post('/direction/{id}', [DirectionController::class, 'update']);
     Route::get('/user', [UserController::class, 'index']);
     Route::get('/user/{id}', [UserController::class, 'show']);
     Route::delete('/user/{id}', [UserController::class, 'destroy']);
-    Route::put('/user/{id}', [UserController::class, 'update']);
+    Route::post('/user/{id}', [UserController::class, 'update']);
     Route::post('/logout',[AuthController::class, 'logout']);
   
 
@@ -80,6 +80,7 @@ Route::prefix('sells')->group(function () {
     Route::get('/', [SellController::class, 'index']);        // Obtener todas las ventas
     Route::get('/{id}', [SellController::class, 'show']);     // Obtener una venta específica
     Route::post('/{id}', [SellController::class, 'store']);       // Crear una nueva venta
+    Route::post('/ionic/{id}', [SellController::class, 'storeIonic']); 
     Route::delete('/{id}', [SellController::class, 'destroy']);
    // Eliminar una venta específica
 });
@@ -89,7 +90,7 @@ Route::get('/paypal/cancel', [SellController::class, 'paypalCancel'])->name('pay
 
 
 
-});
+//});
 
 Route::get('auth/google', [AuthController::class, 'redirectToGoogle']);
 Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);

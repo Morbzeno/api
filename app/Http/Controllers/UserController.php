@@ -57,6 +57,7 @@ class UserController extends Controller
         //se hashea la contraseña
         $user->password = Hash::make($request->password); 
         // aqui se manda la imagen a storage
+        $user->save();
         if ($request->hasFile('image')) { 
             $img = $request->file('image');
             $nuevoNombre = 'user_' . $user->id . '.' . $img->extension();
@@ -91,13 +92,14 @@ class UserController extends Controller
             'email' => 'sometimes|email|unique:users,email,' . $id,
             'password' => 'sometimes|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'socialMedia' => 'sometimes|string|max:20',
             'phone' => 'sometimes|string|max:20',
             'rfc' => 'sometimes|string|max:20',
             'role' => 'sometimes|string|max:50',
             'google_id' => 'sometimes|string|max:255'
         ]);
 
-        $user->fill($request->only(['name', 'last_name', 'email', 'phone', 'rfc', 'role', 'google_id']));
+        $user->fill($request->only(['name', 'last_name', 'email', 'phone', 'rfc', 'role', 'google_id', 'socialMedia']));
         //en caso de que se quiera cambiar la contraseña
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
